@@ -18,8 +18,15 @@ ACDtools/
 ## Installation - locally at NCI
 To install the package on your local system, navigate to the root directory of your repo and run the following command:
 ```bash
-pip install -e .
+pip install --user -e .
 ```
+or in a Jupyter notebook:
+```bash
+import os
+os.chdir('/g/data/es60/users/thomas_moore/code/ACDtools')
+!pip install --user -e .
+```
+
 ## Testing - very basic
 Run your tests locally with pytest:
 `pytest`
