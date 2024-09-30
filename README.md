@@ -22,9 +22,7 @@ pip install --user -e .
 ```
 or in a Jupyter notebook:
 ```bash
-import os
-os.chdir('/g/data/es60/users/thomas_moore/code/ACDtools')
-!pip install --user -e .
+!pip install --user -e /g/data/es60/users/thomas_moore/code/ACDtools
 ```
 
 ## Testing - very basic
