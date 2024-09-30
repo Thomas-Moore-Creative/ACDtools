@@ -16,6 +16,10 @@ ACDtools/
 └── .gitignore                # Optional: Git ignore file for excluding unnecessary files
 ```
 ## Installation - locally at NCI
-
+To install the package on your local system, navigate to the root directory of your repo and run the following command:
 ```bash
 pip install -e .
+```
+## Testing - very basic
+Run your tests locally with pytest:
+`pytest`
