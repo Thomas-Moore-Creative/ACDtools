@@ -15,3 +15,7 @@ ACDtools/
 ├── setup.py                  # Simple setup for easy local installation
 └── .gitignore                # Optional: Git ignore file for excluding unnecessary files
 ```
+## Installation - locally at NCI
+
+```bash
+pip install -e .
