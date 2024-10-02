@@ -3,6 +3,14 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "acdtools"
+name = "ACDtools"
 version = "0.01"
 description = "ACDtools - Australian Climate Data Tools"
+authors = [{name = "Thomas-Moore-Creative", email = "thomas.moore@csiro.au"}]
+
+[tool.setuptools]
+packages = ["ACDtools"]  # Explicitly include only the 'ACDtools' package
+
+[tool.setuptools.exclude]
+# Exclude notebooks and other non-package directories
+packages = ["notebooks", "tests"]
