@@ -1,0 +1,9 @@
+dask_cluster:
+  netcdf_work:
+    n_workers: None  # Number of workers for small cluster
+    threads_per_worker: 1  # Threads per worker
+    memory_limit: None  # Memory limit per worker
+  zarr_work:
+    n_workers: None  # Number of workers for small cluster
+    threads_per_worker: None  # Threads per worker
+    memory_limit: None  # Memory limit per worker
