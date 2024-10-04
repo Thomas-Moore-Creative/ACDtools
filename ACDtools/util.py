@@ -6,6 +6,7 @@ This module contains a collection of utility functions for Australian Climate Da
 # Standard library imports
 import os
 import socket
+import yaml
 
 # Third-party imports
 #import numpy as np
@@ -49,42 +50,75 @@ def detect_compute_platform():
     print('the platform we are working on is '+platform_name+' with hostname: '+hostname)    
     return platform_name, hostname
 
-
-
-def start_dask_cluster(n_workers=None, threads_per_worker=None, memory_limit=None):
+def load_config(config_file='config.yaml'):
     """
-    Starts a local Dask cluster. If no parameters are provided, LocalCluster defaults are used.
+    Load a YAML configuration file and return its contents as a Python dictionary.
 
-    Parameters:
-    n_workers (int or None): Number of workers (None uses LocalCluster's default).
-    threads_per_worker (int or None): Number of threads per worker (None uses LocalCluster's default).
-    memory_limit (str or None): Memory limit per worker (None uses LocalCluster's default).
+    Parameters
+    ----------
+    config_file : str, optional
+        The name or relative path of the YAML configuration file to load. 
+        By default, it looks for 'config.yaml' in the same directory as the script.
 
-    Returns:
-    client (Client): Dask distributed client connected to the cluster.
+    Returns
+    -------
+    dict
+        A dictionary containing the parsed contents of the YAML configuration file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified YAML file is not found.
+    yaml.YAMLError
+        If there is an error parsing the YAML file.
+
+    Example
+    -------
+    >>> config = load_config('my_config.yaml')
+    >>> print(config)
+    {'n_workers': 4, 'memory_limit': '16GB', ...}
     """
-    # Create a LocalCluster, passing parameters only if they are not None
-    cluster_kwargs = {}
-    if n_workers is not None:
-        cluster_kwargs['n_workers'] = n_workers
-    if threads_per_worker is not None:
-        cluster_kwargs['threads_per_worker'] = threads_per_worker
-    if memory_limit is not None:
-        cluster_kwargs['memory_limit'] = memory_limit
 
-    # Create the cluster with the provided or default parameters
-    cluster = LocalCluster(**cluster_kwargs)
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_file)
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
 
+def start_dask_cluster_from_config(work_type):
+    """
+    Start a Dask cluster using settings from a YAML configuration file.
+    
+    Parameters
+    ----------
+    work_type : str
+        The work type key to extract the Dask cluster settings from the configuration file.
+    
+    Returns
+    -------
+    client : dask.distributed.Client
+        The Dask client connected to the cluster.
+    cluster : dask.distributed.LocalCluster
+        The Dask cluster object.
+    """
+    # Load the configuration
+    config = load_config()
+
+    # Extract the Dask cluster settings for the specified work type
+    dask_settings = config.get('dask_cluster', {}).get(work_type, {})
+    
+    # Remove None values (optional parameters)
+    dask_settings = {k: v for k, v in dask_settings.items() if v != 'None'}
+    
+    # Start the Dask cluster with the settings by unpacking the dictionary using **
+    cluster = LocalCluster(**dask_settings)
+    
     # Connect a client to the cluster
     client = Client(cluster)
+
+    # Show some basic information about the cluster
+    print(f"Cluster started with {len(cluster.workers)} workers.")
+    print(f"Dashboard available at: {cluster.dashboard_link}")
     
-    # Optionally print out cluster information
-    print("Dask cluster started:")
-    print(cluster)
-    
-    return client
-
-
-
+    # Return both the client and the cluster
+    return client, cluster
 
 
