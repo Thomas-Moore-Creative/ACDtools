@@ -176,7 +176,24 @@ def esm_datastore_unique(esm_datastore_object, drop_list=['path','time_range','m
     if return_results:
         return sorted_unique_dict, table_data
 
+def load_ACCESS_ESM_ensemble_data():
+    """
+    Load the ACCESS-ESM ensemble data from the esm_datastore.
 
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    esm_datastore : object
+        The esm_datastore object containing the ACCESS-ESM ensemble data.
+    """
+    # Load the esm_datastore object
+    from intake import open_catalog
+    cat = open_catalog("https://nci-ncar.github.io/access-om2-datastore/catalogs/pangeo-cmip6.json")
+    esm_datastore = cat["access-om2"].search(experiment_id="historical", variable_id="tas", grid_label="gn", table_id="Amon")
+    return esm_datastore
 
     
 
