@@ -2,6 +2,7 @@
 util.py
 
 This module contains a collection of utility functions for Australian Climate Data (ACD) tools at NCI.
+Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore@csiro.au", "orcid": "0000-0003-3930-1946"}
 """
 # Standard library imports
 import os
@@ -11,6 +12,7 @@ import yaml
 # Third-party imports
 #import numpy as np
 from dask.distributed import Client, LocalCluster
+from tabulate import tabulate
 
 
 # Local application imports (if needed)
@@ -121,4 +123,60 @@ def start_dask_cluster_from_config(work_type):
     # Return both the client and the cluster
     return client, cluster
 
+def esm_datastore_unique(esm_datastore_object, drop_list=['path','time_range','member_id','version','derived_variable_id'], keep_list=None, header=["Category", "Unique values"], return_results=False):
+    """
+    Generate a table of unique values for each category in the esm_datastore_object, optionally returning the data.
+
+    Parameters
+    ----------
+    esm_datastore_object : object
+        An object that has a `.unique()` method to generate unique entries for each category.
+    drop_list : list, optional
+        A list of keys to exclude from the final dictionary (default is ['path','time_range','member_id','version','derived_variable_id']).
+    keep_list : list, optional
+        A list of keys to keep in the final dictionary, dropping all others (default is None).
+    header : list, optional
+        The header for the output table (default is ["Category", "Unique values"]).
+    return_results : bool, optional
+        Whether to return the unique_dict and table_data (default is False).
+
+    Returns
+    -------
+    unique_dict : dict or None
+        A dictionary of unique values for each category (returned only if `return_results=True`).
+    table_data : list or None
+        A list of lists formatted for tabulation (returned only if `return_results=True`).
+    """
+    # Get the unique values from the esm_datastore_object
+    unique = esm_datastore_object.unique()
+
+    # Convert to dictionary
+    unique_dict = unique.to_dict()
+
+    # Keep only specified keys if keep_list is provided
+    if keep_list is not None:
+        unique_dict = {key: value for key, value in unique_dict.items() if key in keep_list}
+    # Drop specified keys if drop_list is provided
+    elif drop_list is not None:
+        unique_dict = {key: value for key, value in unique_dict.items() if key not in drop_list}
+
+    # Sort each list of values in the dictionary and sort the keys alphabetically
+    sorted_unique_dict = {key: sorted(value) if isinstance(value, list) else value for key, value in sorted(unique_dict.items())}
+
+    # Prepare data for tabulation
+    table_data = []
+    for key, value in sorted_unique_dict.items():
+        # If value is a list, join elements by newline; otherwise, use the value as is
+        table_data.append([key, "\n".join(value) if isinstance(value, list) else value])
+
+    # Print the table
+    print(tabulate(table_data, headers=header, tablefmt="fancy_grid"))
+
+    # Conditionally return results based on the flag
+    if return_results:
+        return sorted_unique_dict, table_data
+
+
+
+    
 
