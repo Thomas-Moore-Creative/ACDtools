@@ -18,13 +18,15 @@ from tabulate import tabulate
 # Local application imports (if needed)
 #from .my_local_module import my_function
 
-def load_ACCESS_ESM_ensemble(catalog_search):
+def load_ACCESS_ESM_ensemble(catalog_search,chunking_settings=None,drop_extra_variables=True,drop_list=['vertices_longitude', 'vertices_latitude', 'time_bnds']):
     """
     Load the ACCESS-ESM ensemble data from an esm_datastore.
 
     Parameters
     ----------
     catalog_search : intake_esm.core.esm_datastore object -  This will come from filtering an intake catalog that contains the ACCESS-ESM ensemble data.
+    chunking_settings : dict - A dictionary containing the chunking settings for the dataset. The default is None.
+    drop_extra_variables : bool - A flag to drop extra variables that are not the primary variable. The default is True.
 
     Returns
     -------
@@ -45,7 +47,18 @@ def load_ACCESS_ESM_ensemble(catalog_search):
     if len(catalog_search.df['member_id'].unique()) < 2:
         raise ValueError("The catalog_search must contain at least 2 ensembles!!!")
     # Get the dictionary of datasets and the corresponding keys (member names)
-    dataset_dict = catalog_search.to_dataset_dict(progressbar=False)
+    # if chunking_settings is provided, use it to load the dataset
+    if chunking_settings:
+        xarray_open_kwargs = chunking_settings
+    else:
+        xarray_open_kwargs = {}
+
+    dataset_dict = catalog_search.to_dataset_dict(progressbar=False,xarray_open_kwargs=xarray_open_kwargs)
+    # Drop extra variables that are not the primary variable if condition is True
+    if drop_extra_variables:
+        dataset_dict_clean = {key: ds.drop_vars(drop_list, errors='ignore') 
+            for key, ds in dataset_dict.items()}
+        dataset_dict = dataset_dict_clean
     # check that the member names are unique
     if len(dataset_dict.keys()) != len(set([key.split('.')[5] for key in dataset_dict.keys()])):
         raise ValueError("The member names are not unique!!!")
