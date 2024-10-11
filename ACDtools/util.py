@@ -13,6 +13,7 @@ import yaml
 #import numpy as np
 from dask.distributed import Client, LocalCluster
 from tabulate import tabulate
+import xarray as xr
 
 
 # Local application imports (if needed)
@@ -123,7 +124,9 @@ def start_dask_cluster_from_config(work_type):
     # Return both the client and the cluster
     return client, cluster
 
-def report_esm_unique(esm_datastore_object, drop_list=['path','time_range','member_id','version','derived_variable_id'], keep_list=None, header=["Category", "Unique values"], return_results=False):
+def report_esm_unique(esm_datastore_object, drop_list=['path','time_range','member_id','version','derived_variable_id'], 
+    keep_list=None, header=["Category", "Unique values"], 
+    return_results=False):
     """
     Generate a table of unique values for each category in the esm_datastore_object, optionally returning the data.
 
@@ -176,5 +179,61 @@ def report_esm_unique(esm_datastore_object, drop_list=['path','time_range','memb
     if return_results:
         return sorted_unique_dict, table_data
 
-    
 
+
+def var_name_info(catalog_object, var_name, return_results=False):
+    """
+    Extracts information about a variable from an intake-esm catalog object.
+
+    Parameters
+    ----------
+    catalog_object : intake_esm.core.esm_datastore object
+        An intake-esm catalog object, likely containing many variables.
+    var_name : str
+        The name of the variable to extract information for.
+    return_results : bool, optional
+        Whether to return the variable information (default is False).
+
+    Returns
+    -------
+    var_info : dict or None
+        A dictionary containing the variable information (returned only if `return_results=True`).
+    """
+    var_ds = xr.open_mfdataset((catalog_object.search(file_type='l',
+                    variable_id=var_name).unique().path)[0], chunks={})
+    var_info = var_ds[var_name].attrs
+    # turn the dictionary into a table for easy reading - adding a header that reports the variable name and name of the catalog object
+    print(f"*** Variable: \033[1m{var_name}\033[0m from catalog: {catalog_object} ***")
+    table_data = []
+    for key, value in var_info.items():
+        table_data.append([key, value])
+    # Print the table
+    max_chars_per_line = 100  # Maximum number of characters per line
+    max_words_per_line = 30  # Maximum number of words per line
+    table_data_formatted = []
+    for key, value in table_data:
+        if isinstance(value, str):
+            # Split the value into words
+            words = value.split()
+            # Create a new list to store the formatted lines
+            lines = []
+            current_line = ""
+            for word in words:
+                # Check if adding the current word exceeds the maximum characters or words per line
+                if len(current_line) + len(word) + 1 <= max_chars_per_line and len(lines) < max_words_per_line:
+                    current_line += word + " "
+                else:
+                    # Add the current line to the lines list and start a new line with the current word
+                    lines.append(current_line.strip())
+                    current_line = word + " "
+            # Add the last line to the lines list
+            lines.append(current_line.strip())
+            # Join the lines with newline characters
+            formatted_value = "\n".join(lines)
+            table_data_formatted.append([key, formatted_value])
+        else:
+            table_data_formatted.append([key, value])
+    print(tabulate(table_data_formatted, headers=["Attribute", "Value"], tablefmt="fancy_grid"))
+    # Conditionally return results
+    if return_results:
+        return var_info
