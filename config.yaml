@@ -7,3 +7,13 @@ dask_cluster:
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: None  # Default threads per worker
     memory_limit: None  # Default Memory limit per worker
+chunking_settings:
+  ACCESS-ESM15_2D:
+    time: 1
+    lat: 32
+    lon: 64
+  ACCESS-ESM15_3D:
+    time: 1
+    lev: 1
+    lat: 32
+    lon: 64
