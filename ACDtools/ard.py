@@ -5,7 +5,7 @@ This module contains a collection of functions for analysis-ready-data (ARD) ope
 Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore@csiro.au", "orcid": "0000-0003-3930-1946"}
 """
 # Standard library imports
-# import os
+import os
 
 
 # Third-party imports
@@ -13,6 +13,7 @@ Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore
 import intake_esm
 import xarray as xr
 import numpy as np
+from tabulate import tabulate
 
 # Local application imports (if needed)
 #from .my_local_module import my_function
@@ -67,3 +68,120 @@ def load_ACCESS_ESM_ensemble(catalog_search):
     # Reorder the dataset based on the sorted member indices
     ds_sorted = ds.isel(member=sorted_member_indices)
     return ds_sorted
+
+def find_chunking_info(catalog_search, var_name, return_results=False):
+    """
+    Find the chunking information for a dataset in an esm_datastore.  This takes a simple approach to the possibility of different 
+    chunking information between file paths in the catalog search by comparing the first and the last files in the list of paths.
+
+    Parameters
+    ----------
+    catalog_search : intake_esm.core.esm_datastore object -  This will come from filtering an intake catalog.
+
+    Returns
+    -------
+    chunking_info : dict - A dictionary containing the chunking information for each variable in the dataset.
+
+    """
+    # check if the catalog_search is an esm_datastore object, specifically intake_esm.core.esm_datastore
+    if not isinstance(catalog_search, intake_esm.core.esm_datastore):
+        raise TypeError("catalog_search must be an instance of intake_esm.core.esm_datastore!!! Did catalog_search come from filtering an intake catalog?")
+    # get the first and the last paths in the catalog_search
+    first_path = catalog_search.df['path'].iloc[0]
+    last_path = catalog_search.df['path'].iloc[-1]
+    # Construct the command to run ncdump on the first file path
+    command = f"ncdump -hs {first_path}"
+    # Run the command and capture the output
+    output = os.popen(command).read()
+    # Parse the output to extract the chunking information
+    chunking_info_first = {}
+    lines = output.split("\n")
+    for line in lines:
+        if "_ChunkSizes" in line:
+            chunk_sizes = line.split("=")[1].strip()
+            chunking_info_first[var_name] = {
+                "chunk_sizes": chunk_sizes,
+                "file_path": first_path
+            }
+    # Construct the command to run ncdump on the last file path
+    command = f"ncdump -hs {last_path}"
+    # Run the command and capture the output
+    output = os.popen(command).read()
+    # Parse the output to extract the chunking information
+    chunking_info_last = {}
+    lines = output.split("\n")
+    for line in lines:
+        if "_ChunkSizes" in line:
+            chunk_sizes = line.split("=")[1].strip()
+            chunking_info_last[var_name] = {
+                "chunk_sizes": chunk_sizes,
+                "file_path": last_path
+            }
+    #compare the chunking information from the first and the last files - if the chunking information isn't the same, raise a warning
+    if chunking_info_first[var_name]['chunk_sizes'] != chunking_info_last[var_name]['chunk_sizes']:
+        print(f"WARNING: The chunking information for the variable '{var_name}' is different between the first and the last files in the list of paths!!!")
+    # Create a table with the chunking information
+    max_chars_per_line = 50  # Maximum number of characters per line
+    max_words_per_line = 10  # Maximum number of words per line
+    table_data_formatted = []
+    # use the tabulate function to format the table
+    table_data = [
+        ["Variable", var_name],
+        ["Chunk sizes (first file)", chunking_info_first[var_name]['chunk_sizes']],
+        ["File path (first file)", chunking_info_first[var_name]['file_path']],
+        ["Chunk sizes (last file)", chunking_info_last[var_name]['chunk_sizes']],
+        ["File path (last file)", chunking_info_last[var_name]['file_path']]
+    ]
+    for key, value in table_data:
+        if isinstance(value, str):
+            # Split the value into words
+            words = value.split()
+            # Create a new list to store the formatted lines
+            lines = []
+            current_line = ""
+            for word in words:
+                # Check if adding the current word exceeds the maximum characters or words per line
+                if len(current_line) + len(word) + 1 <= max_chars_per_line and len(lines) < max_words_per_line:
+                    current_line += word + " "
+                else:
+                    # Add the current line to the lines list and start a new line with the current word
+                    lines.append(current_line.strip())
+                    current_line = word + " "
+            # Add the last line to the lines list
+            lines.append(current_line.strip())
+            # Break up long lines over max_chars_per_line on forward slashes
+            lines_formatted = []
+            for line in lines:
+                if len(line) > max_chars_per_line:
+                    line_parts = line.split("/")
+                    new_line = ""
+                    current_line = ""
+                    for part in line_parts:
+                        if len(current_line) + len(part) + 1 <= max_chars_per_line:
+                            current_line += part + "/"
+                        else:
+                            lines_formatted.append(current_line.strip())
+                            current_line = part + "/"
+                    lines_formatted.append(current_line.strip())
+                else:
+                    lines_formatted.append(line)
+            table_data_formatted.append([key, "\n".join(lines_formatted)])
+        else:
+            table_data_formatted.append([key, value])
+    print(tabulate(table_data_formatted, tablefmt="fancy_grid"))
+    
+    # Conditionally return results based on the flag
+    if return_results:
+        # Combine the chunking information from the first and the last files
+        chunking_info = {
+            var_name: {
+                "chunk_sizes_first": chunking_info_first[var_name]['chunk_sizes'],
+                "file_path_first": chunking_info_first[var_name]['file_path'],
+                "chunk_sizes_last": chunking_info_last[var_name]['chunk_sizes'],
+                "file_path_last": chunking_info_last[var_name]['file_path']
+            }
+        }
+        return chunking_info
+    else:
+        return None
+
