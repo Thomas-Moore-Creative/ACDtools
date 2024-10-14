@@ -22,3 +22,11 @@ chunking:
       time: 220
       i: 360
       j: 300
+  ACCESS_ESM15_3D: #{'chunks':{'member':?,'time':?,'lev':-1,'j':-1,'i':-1}}
+    chunks:
+      member: 1
+      time: 12
+      lev: -1
+      i: -1
+      j: -1
+  
