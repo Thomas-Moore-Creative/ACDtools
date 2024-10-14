@@ -8,11 +8,13 @@ dask_cluster:
     threads_per_worker: None  # Default threads per worker
     memory_limit: None  # Default Memory limit per worker
 chunking_settings:
-  ACCESS-ESM15_2D:
-    time: 1
-    lat: 32
-    lon: 64
-  ACCESS-ESM15_3D:
+  ACCESS_ESM15_2D: #{'chunks':{'member':1,'time':220,'j':300,'i':360}}
+    chunks:
+      member: 1
+      time: 220
+      i: 360
+      j: 300
+  ACCESS_ESM15_3D:
     time: 1
     lev: 1
     lat: 32

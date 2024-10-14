@@ -18,7 +18,7 @@ from tabulate import tabulate
 # Local application imports (if needed)
 #from .my_local_module import my_function
 
-def load_ACCESS_ESM_ensemble(catalog_search,chunking_settings=None,drop_extra_variables=True,drop_list=['vertices_longitude', 'vertices_latitude', 'time_bnds']):
+def load_ACCESS_ESM_ensemble(catalog_search,chunking_settings=None,chunking_key=None,drop_extra_variables=True,drop_list=['vertices_longitude', 'vertices_latitude', 'time_bnds']):
     """
     Load the ACCESS-ESM ensemble data from an esm_datastore.
 
@@ -47,12 +47,19 @@ def load_ACCESS_ESM_ensemble(catalog_search,chunking_settings=None,drop_extra_va
     if len(catalog_search.df['member_id'].unique()) < 2:
         raise ValueError("The catalog_search must contain at least 2 ensembles!!!")
     # Get the dictionary of datasets and the corresponding keys (member names)
+    # if chunking_key is provided, use it to load the dataset
+    if chunking_key:
+        from .util import load_config
+        config = load_config() # Load the configuration file from yaml
+        xarray_open_kwargs = config['chunking_settings'][chunking_key]
+        print(f"Loading the dataset using the chunking settings for '{chunking_key}' from the configuration file: {xarray_open_kwargs}")
     # if chunking_settings is provided, use it to load the dataset
-    if chunking_settings:
+    elif chunking_settings:
         xarray_open_kwargs = chunking_settings
+        print(f"Loading the dataset using the provided chunking settings: {xarray_open_kwargs}")
     else:
         xarray_open_kwargs = {}
-
+        print("Loading the dataset using the default chunking settings")
     dataset_dict = catalog_search.to_dataset_dict(progressbar=False,xarray_open_kwargs=xarray_open_kwargs)
     # Drop extra variables that are not the primary variable if condition is True
     if drop_extra_variables:
