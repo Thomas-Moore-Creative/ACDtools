@@ -51,7 +51,7 @@ def load_ACCESS_ESM_ensemble(catalog_search,chunking_settings=None,chunking_key=
     if chunking_key:
         from .util import load_config
         config = load_config() # Load the configuration file from yaml
-        xarray_open_kwargs = config['chunking_settings'][chunking_key]
+        xarray_open_kwargs = config['chunking'][chunking_key]
         print(f"Loading the dataset using the chunking settings for '{chunking_key}' from the configuration file: {xarray_open_kwargs}")
     # if chunking_settings is provided, use it to load the dataset
     elif chunking_settings:
