@@ -237,3 +237,23 @@ def var_name_info(catalog_object, var_name, return_results=False):
     # Conditionally return results
     if return_results:
         return var_info
+
+def list_catalog_query_kwargs(esmds):
+    """
+    List all possible keyword arguments for the **query argument
+    in the search method of an intake_esm.core.esm_datastore object.
+    
+    Parameters:
+        esmds (intake_esm.core.esm_datastore): The ESM datastore object.
+    
+    Returns:
+        list: A list of column names that can be used as keyword arguments for **query.
+    
+    Example usage:
+    Assuming `esmds` is your intake_esm.core.esm_datastore object
+    query_kwargs = list_query_kwargs(cmip6_fs38_datastore)
+    print("Possible query kwargs for search method:", query_kwargs)
+    """
+    # Get the columns of the dataframe inside the esm_datastore
+    query_kwargs = esmds.df.columns.tolist()
+    return query_kwargs

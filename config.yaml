@@ -7,14 +7,9 @@ dask_cluster:
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: None  # Default threads per worker
     memory_limit: None  # Default Memory limit per worker
-intake_catalog_search:
+intake_esm_search_query_dict:
   ACCESS_ESM15:
-    all_ocean:
-      settings: None
-    ocean_physics:
-      settings: None
-    ocean_bgc:
-      settings: None
+    all_ocean_monthly: 
 chunking:
   ACCESS_ESM15_2D: #{'chunks':{'member':1,'time':220,'j':300,'i':360}}
     chunks:
