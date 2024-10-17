@@ -14,6 +14,7 @@ import yaml
 from dask.distributed import Client, LocalCluster
 from tabulate import tabulate
 import xarray as xr
+import intake
 
 
 # Local application imports (if needed)
@@ -256,4 +257,21 @@ def list_catalog_query_kwargs(esmds):
     """
     # Get the columns of the dataframe inside the esm_datastore
     query_kwargs = esmds.df.columns.tolist()
+    print(tabulate([[kw] for kw in query_kwargs], headers=["Possible query kwargs"], tablefmt="fancy_grid"))
     return query_kwargs
+
+def load_cmip6_fs38_datastore():
+    """
+    Load the CMIP6 FS3.8 data catalog as an intake-esm datastore object.
+    
+    Returns:
+    intake_esm.core.esm_datastore: The CMIP6 FS3.8 data catalog as an intake-esm datastore object.
+    """
+    
+    # Load the CMIP6 FS38 data catalog
+    nri_catalog = intake.cat.access_nri
+    cmip6_fs38_datastore = nri_catalog.search(name='cmip6_fs38').to_source()
+    return cmip6_fs38_datastore
+
+
+
