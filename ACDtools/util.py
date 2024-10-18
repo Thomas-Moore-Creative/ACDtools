@@ -273,5 +273,23 @@ def load_cmip6_fs38_datastore():
     cmip6_fs38_datastore = nri_catalog.search(name='cmip6_fs38').to_source()
     return cmip6_fs38_datastore
 
+def show_methods(your_object):
+    # Get all attributes of the object
+    all_methods = dir(your_object)
+
+    # Filter the list to only show callable methods
+    methods_only = []
+    for method in all_methods:
+        try:
+            if callable(getattr(your_object, method)):
+                methods_only.append(method)
+        except AttributeError:
+            pass
+
+    # Print all the methods
+    for method in methods_only:
+        print(method)
+        
+
 
 

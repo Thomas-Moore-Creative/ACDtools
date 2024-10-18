@@ -13,7 +13,7 @@ catalog_search_query_dict:
       realm: ['ocean','ocnBgchem']
       source_id: 'ACCESS-ESM1-5'
     CSEPTA:
-      experiment_id: ['historical','piControl','ssp126','ssp370','ssp585']
+      experiment_id: ['piControl'] #,'historical','ssp370']
       source_id: 'ACCESS-ESM1-5'
       variable_id: ['intpp']
       realm: ['ocean','ocnBgchem']
