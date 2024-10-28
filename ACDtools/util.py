@@ -262,7 +262,7 @@ def list_catalog_query_kwargs(esmds):
 
 def load_cmip6_fs38_datastore():
     """
-    Load the CMIP6 FS3.8 data catalog as an intake-esm datastore object.
+    Load the CMIP6 FS38 data catalog as an intake-esm datastore object.
     
     Returns:
     intake_esm.core.esm_datastore: The CMIP6 FS3.8 data catalog as an intake-esm datastore object.
