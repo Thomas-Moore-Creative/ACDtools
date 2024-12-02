@@ -10,15 +10,22 @@ dask_cluster:
 catalog_search_query_dict:
   ACCESS_ESM15:
     all_ocean:
-      realm: ['ocean','ocnBgchem']
-      source_id: 'ACCESS-ESM1-5'
+      NCI_catalog:
+        realm: ['ocean','ocnBgchem']
+        source_id: 'ACCESS-ESM1-5'
     CSEPTA:
-      experiment_id: ['piControl'] #,'historical','ssp370']
-      source_id: 'ACCESS-ESM1-5'
-      variable_id: ['intpp']
-      realm: ['ocean','ocnBgchem']
-      frequency: 'mon'
-      file_type: 'l'
+      NCI_catalog:
+        experiment_id: ['piControl'] #,'historical','ssp370']
+        source_id: 'ACCESS-ESM1-5'
+        variable_id: ['intpp']
+        realm: ['ocean','ocnBgchem']
+        frequency: 'mon'
+        file_type: 'l'
+      CLEX_catalog:
+        experiment_id: ['piControl'] #,'historical','ssp370']
+        source_id: 'ACCESS-ESM1-5'
+        variable_id: ['thetao']
+        table_id: 'Omon'
 chunking:
   ACCESS_ESM15_2D: #{'chunks':{'member':1,'time':220,'j':300,'i':360}}
     chunks:

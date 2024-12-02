@@ -273,6 +273,21 @@ def load_cmip6_fs38_datastore():
     cmip6_fs38_datastore = nri_catalog.search(name='cmip6_fs38').to_source()
     return cmip6_fs38_datastore
 
+def load_cmip6_CLEX_datastore():
+    """
+    Load the CMIP6 FS38 data catalog as an intake-esm datastore object using the frozen CLEX NCI catalog.
+    Using the 'cmip6' entry of the 'esgf' sub-catalog of the CLEX "nci" catalog provides access to only the latest CMIP6 data.
+    See: https://github.com/Thomas-Moore-Creative/ACDtools/issues/2#issuecomment-2510304106
+    
+    Returns:
+    intake_esm.core.esm_datastore: The CMIP6 FS3.8 CLEX data catalog as an intake-esm datastore object.
+    """
+    
+    # Load the CMIP6 CLEX FS38 data catalog
+    clex_esgf_cat = intake.cat.nci['esgf']
+    clex_cmip6_cat = clex_esgf_cat['cmip6']
+    return clex_cmip6_cat
+
 def show_methods(your_object):
     # Get all attributes of the object
     all_methods = dir(your_object)
