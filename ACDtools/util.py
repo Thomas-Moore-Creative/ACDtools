@@ -62,7 +62,7 @@ def load_config(config_file='config.yaml'):
     ----------
     config_file : str, optional
         The name or relative path of the YAML configuration file to load. 
-        By default, it looks for 'config.yaml' in the same directory as the script.
+        By default, it looks for 'config.yaml' one directory upstream from the script.
 
     Returns
     -------
@@ -304,6 +304,14 @@ def show_methods(your_object):
     # Print all the methods
     for method in methods_only:
         print(method)
+
+def remove_encoding(DS):
+    for var in DS:
+        DS[var].encoding = {}
+
+    for coord in DS.coords:
+        DS[coord].encoding = {}
+    return DS
         
 
 
