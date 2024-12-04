@@ -200,7 +200,7 @@ def var_name_info(catalog_object, var_name, return_results=False):
     var_info : dict or None
         A dictionary containing the variable information (returned only if `return_results=True`).
     """
-    var_ds = xr.open_mfdataset((catalog_object.search(file_type='l',
+    var_ds = xr.open_mfdataset((catalog_object.search(
                     variable_id=var_name).unique().path)[0], chunks={})
     var_info = var_ds[var_name].attrs
     # turn the dictionary into a table for easy reading - adding a header that reports the variable name and name of the catalog object
@@ -312,6 +312,8 @@ def remove_encoding(DS):
     for coord in DS.coords:
         DS[coord].encoding = {}
     return DS
+
+
         
 
 

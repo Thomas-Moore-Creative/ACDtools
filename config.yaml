@@ -24,7 +24,7 @@ catalog_search_query_dict:
       CLEX_catalog:
         experiment_id: ['piControl'] #,'historical','ssp370']
         source_id: 'ACCESS-ESM1-5'
-        variable_id: ['thetao']
+        variable_id: ['u']
         table_id: 'Omon'
 chunking:
   ACCESS_ESM15_2D: #{'chunks':{'member':1,'time':220,'j':300,'i':360}}
