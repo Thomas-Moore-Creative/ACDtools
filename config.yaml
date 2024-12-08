@@ -3,6 +3,10 @@ dask_cluster:
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: 1  # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
     memory_limit: None  # Default memory limit per worker
+  bwmega_work: # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
+    n_workers: 8  # Number of workers for default cluster
+    threads_per_worker: 1  # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
+    memory_limit: None  # Default memory limit per worker
   zarr_work:
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: None  # Default threads per worker

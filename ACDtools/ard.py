@@ -261,12 +261,18 @@ def find_chunking_info(catalog_search, var_name, return_results=False):
     else:
         return None
 
-def save_n_drop_multidim_lat_lon(ds, save_coords_dir, coords_name='ACCESS-ESM1.5', variable_name='var_name_unknown'):
-    coords = ds[['latitude', 'longitude','vertices_latitude','vertices_longitude']]
+def save_n_drop_multidim_lat_lon(ds, save_coords_dir, coords_name='ACCESS-ESM1.5', variable_name='var_name_unknown', drop_list=['latitude', 'longitude','vertices_latitude','vertices_longitude']):
+    # check if the objects in drop_list are in the dataset
+    final_drop_list = []
+    for item in drop_list:
+        if item in ds:
+            print(f"The item '{item}' was found in the dataset and will be dropped!!!")
+            final_drop_list.append(item)
+    coords = ds[final_drop_list]
     current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{coords_name}_{variable_name}_coords_{current_datetime}.nc"
     coords.to_netcdf(save_coords_dir + filename)
-    ds_dropped = ds.drop(['latitude','longitude','vertices_latitude','vertices_longitude'])
+    ds_dropped = ds.drop(final_drop_list)
     ds_dropped.attrs['coords_filename'] = save_coords_dir + filename
     ds_dropped.attrs['NOTE on coordinates'] = 'the multidimensional latitude and longitude coordinates have been saved as a separate NetCDF file'
     return ds_dropped
