@@ -13,7 +13,7 @@ dask_cluster:
 catalog_search_query_dict:
   experiment_id: 'ssp370'
   source_id: 'ACCESS-ESM1-5'
-  variable_id: 'thetao'
+  variable_id: 'chl'
   table_id: 'Omon'
 chunking_key:
   'ACCESS_ESM15_3D'
