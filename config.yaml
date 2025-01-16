@@ -30,6 +30,14 @@ catalog_search_query_dict:
         source_id: 'ACCESS-ESM1-5'
         variable_id: ['u']
         table_id: 'Omon'
+load_data:
+  GOBAI_O2:
+    climatology:
+      kwargs: None
+      path: '/g/data/es60/data/raw-data/in-situ-obs/GOBAI-O2/4.4/data/0-data/GOBAI-O2-clim-v2.2.nc'
+    monthly:
+      kwargs: None
+      path: '/g/data/es60/data/raw-data/in-situ-obs/GOBAI-O2/4.4/data/0-data/GOBAI-O2-v2.2.nc'
 chunking:
   ACCESS_ESM15_2D: #{'chunks':{'member':1,'time':220,'j':300,'i':360}}
     chunks:
