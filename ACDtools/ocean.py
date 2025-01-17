@@ -43,7 +43,7 @@ def threshold_depth(da,chosen_threshold=90,depth_name='pres'):
     threshold = chosen_threshold
     # Create a mask for where oxygen falls below the threshold
     mask = da <= threshold
-    # find depth of first threshold value
+    # find grid point depth of first threshold value
     depths_where_below_threshold = da[depth_name].where(mask)
     first_depth_below_threshold = depths_where_below_threshold.min(dim=depth_name)
     first_depth_below_threshold = first_depth_below_threshold.where(mask.any(dim=depth_name), np.nan)
@@ -91,4 +91,68 @@ def layer_statistics(da,var_name,layer_depth = 300,depth_name = 'pres'):
     layer_stats_ds[var_name+'_layer_trapezoidal_integral'] = layer_trapezoidal_integral
     return layer_stats_ds
 
+def interpolate_oxygen_target_depth(da, target=90.0, depth_coord='pres'):
+    """
+    Interpolates the depth at which a specified target oxygen value occurs 
+    along a given depth coordinate in an xarray DataArray.
+
+    This function identifies the shallowest crossing of the target value
+    and performs linear interpolation to determine the precise depth where 
+    the target value is reached. If the values bounding the target are 
+    identical, an error is raised to prevent division by zero.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        The input DataArray containing oxygen concentration values, indexed 
+        by the depth coordinate.
+    target : float, optional
+        The target oxygen concentration value for which to find the depth.
+        Default is 90.0.
+    depth_coord : str, optional
+        The name of the depth coordinate in the DataArray. Default is 'pres'.
+
+    Returns
+    -------
+    float
+        The interpolated depth at which the target oxygen value occurs.
+
+    Raises
+    ------
+    ValueError
+        If the values bounding the target oxygen value (value_A and value_B) 
+        are identical, which would result in a division by zero.
+
+    Examples
+    --------
+    >>> import xarray as xr
+    >>> import numpy as np
+    >>> depth = np.linspace(0, 1000, 11)
+    >>> oxygen = np.array([200, 180, 150, 120, 100, 90, 80, 70, 60, 50, 40])
+    >>> da = xr.DataArray(oxygen, coords={"pres": depth}, dims=["pres"])
+    >>> interpolate_oxygen_target_depth(da, target=90)
+    500.0
+
+    Notes
+    -----
+    - The function assumes that the depth coordinate is monotonic and increasing.
+    - If there are multiple crossings of the target value, the function returns
+      the shallowest crossing.
+    """
+    mask = da <= target
+    just_below_target = mask * ~(mask.shift({depth_coord: 1}, fill_value=False))
+    just_above_target = ~mask * (mask.shift({depth_coord: -1}, fill_value=False))
+    # depths for shallowest target value crossing
+    depth_A = just_above_target[depth_coord].where(just_above_target).min(depth_coord)
+    depth_B = just_below_target[depth_coord].where(just_below_target).min(depth_coord)
+    # Get the values corresponding to the bounds for shallowest target value crossing
+    value_A = da.where(just_above_target).min(depth_coord)
+    value_B = da.where(just_below_target).min(depth_coord)
+    # test that values are not the same anywhere
+    equal_mask = value_A == value_B
+    if equal_mask.any():
+        raise ValueError("Cannot interpolate with identical values (value_A == value_B).")
+    # Linear interpolation formula
+    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (depth_B - depth_A)
+    return interpolated_depth
 
