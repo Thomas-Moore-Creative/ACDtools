@@ -86,6 +86,120 @@ def tropical_pacific(central_longitude=180,figsize=(16,16),extent=[130, 290, -60
     ax.set_extent(extent, crs=ccrs.PlateCarree())
     plt.title(my_plot_title)
     fig.tight_layout()
-    plt.show()
-    return ax
+    return ax, fig
+
+def add_points_and_labels(ax, latitudes, longitudes, labels):
+    """
+    Adds points and labels to an existing Cartopy map.
+    Args:
+        ax: Matplotlib axes object with a Cartopy map.
+        latitudes: List of latitude values.
+        longitudes: List of longitude values.
+        locations: List of location names corresponding to the lat/lon values.
+
+    Example:
+        add_points_and_labels(ax, latitudes, longitudes, labels)
+        # Show the plot
+        plt.show()   
+    """
+    for lat, lon, loc in zip(latitudes, longitudes, labels):
+        ax.scatter(lon, lat, color='red', s=50, transform=ccrs.PlateCarree(), label=loc)
+        if loc == 'American Samoa':
+            lat += -1.5
+            lon += -1.0
+        if loc == 'Samoa':
+            lat += -2.0
+            lon += -5.0
+        if loc == 'Wallis and Futuna':
+            lat += 1.0
+            lon += -1.0
+
+        ax.text(lon + 1, lat, loc, fontsize=10, color='black', transform=ccrs.PlateCarree())
+
+def add_outside_text(fig, text, position='bottom-right', fontsize=10, color='gray', style='italic', weight=None):
+    """
+    Adds a line of text outside the bounding box of a plot.
+    
+    Args:
+        fig: The Matplotlib figure object.
+        text: The text to add (string).
+        position: Where to place the text ('bottom', 'top', 'top-right', 'bottom-right', or custom tuple for (x, y)).
+        fontsize: Font size of the text.
+        color: Color of the text.
+        style: Font style of the text (e.g., 'italic', 'normal').
+        weight: Font weight of the text (e.g., 'bold', 'normal').
+    """
+    # Define default positions for 'top', 'bottom', 'top-right', and 'bottom-right'
+    positions = {
+        'bottom': (0.5, 0.03),       # Just above the bottom of the plot
+        'top': (0.5, 0.92),          # Just below the top of the plot
+        'top-right': (0.98, 0.92),   # Near the top-right corner of the plot
+        'bottom-right': (0.98, 0.03) # Near the bottom-right corner of the plot
+    }
+    
+    # Use predefined positions or custom coordinates
+    x, y = positions.get(position, position if isinstance(position, tuple) else (0.5, 0.02))
+    
+    # Add text to the figure
+    fig.text(
+        x, y, 
+        text, 
+        ha='right' if 'right' in position else 'center',  # Align right for 'top-right' and 'bottom-right'
+        fontsize=fontsize, 
+        color=color, 
+        style=style, 
+        weight=weight
+    )
+
+def add_inside_text(ax, text, position='bottom', fontsize=10, color='gray', style='italic', weight=None):
+    """
+    Adds a line of text just inside the bounding box of a plot, with improved alignment and positioning.
+    
+    Args:
+        ax: The Matplotlib axes object.
+        text: The text to add (string).
+        position: Where to place the text ('bottom', 'top', 'top-right', 'bottom-right', 'bottom-left', or custom tuple for (x, y)).
+        fontsize: Font size of the text.
+        color: Color of the text.
+        style: Font style of the text (e.g., 'italic', 'normal').
+        weight: Font weight of the text (e.g., 'bold', 'normal').
+    """
+    # Get the bounding box of the plot within the figure
+    bbox = ax.get_position()
+    
+    # Define positions relative to the plot's bounding box
+    # Adjusted offsets for closer placement to bounds
+    positions = {
+        'bottom': (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y0 + 0.005),  # Bottom center
+        'top': (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y1 - 0.005),    # Top center
+        'top-right': (bbox.x1 - 0.02, bbox.y1 - 0.015),                 # Slightly lower top-right corner
+        'bottom-right': (bbox.x1 - 0.02, bbox.y0 + 0.005),             # Bottom-right corner
+        'bottom-left': (bbox.x0 + 0.02, bbox.y0 + 0.005)               # Slightly inward and aligned left
+    }
+    
+    # Determine alignment based on position
+    alignment = {
+        'top-right': 'right',
+        'bottom-right': 'right',
+        'bottom-left': 'left',
+        'top': 'center',
+        'bottom': 'center'
+    }
+    
+    # Use predefined positions or custom coordinates
+    x, y = positions.get(position, position if isinstance(position, tuple) else (0.5, bbox.y0 + 0.005))
+    
+    # Add text to the figure
+    ax.figure.text(
+        x, y, 
+        text, 
+        ha=alignment.get(position, 'center'),  # Adjust alignment based on position
+        fontsize=fontsize, 
+        color=color, 
+        style=style, 
+        weight=weight
+    )
+
+
+
     
