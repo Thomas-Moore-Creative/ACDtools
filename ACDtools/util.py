@@ -313,7 +313,29 @@ def remove_encoding(DS):
         DS[coord].encoding = {}
     return DS
 
+def align_lon(ds,lon_name_list):
+    """
+    align_lon
+    Returns: ds
+    Defaults:
+    Author: Thomas Moore (based on Dougie Squire code)
+    Date created: 28/01/2020
 
+    Assumptions:
+    Dataset = ds
+    Use: ds_aligned = align_lon(ds,lon_name_list)
+    Limitations:
+    """
+    for lon_name in lon_name_list:
+        ds_attrs = ds[lon_name].attrs
+        ds = ds.assign_coords({lon_name: (ds[lon_name] + 360)  % 360}).sortby(lon_name)
+        ds[lon_name].attrs = ds_attrs
+    return ds
+
+def replace_zero_w_nan(data_w_zero):
+    data_w_nan = data_w_zero.where(data_w_zero != 0)
+    data_w_nan.attrs['post_processing_note'] = 'zero values replaced with NaNs'
+    return data_w_nan
         
 
 
