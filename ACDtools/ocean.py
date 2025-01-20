@@ -156,3 +156,40 @@ def interpolate_oxygen_target_depth(da, target=90.0, depth_coord='pres'):
     interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (depth_B - depth_A)
     return interpolated_depth
 
+def surface_isotherm(ocean_SST_da,threshold = 28.5):
+    r"""calculate warm pool metrics based on a threshold
+
+    Parameters
+    ----------
+    ocean_SST_da : xarray data array
+    threshold: temperature criteria for "warm pool" definition. Default is 28.5 degrees C.
+
+    Returns
+    -------
+    xarray data array
+        An xarray data array that has `nan` where threshold condition is not met.
+
+    Raises
+    ------
+    TBD
+
+    Notes
+    -----
+    TBD
+
+    References
+    ----------
+    
+    .. [1] De Deckker, P. The Indo-Pacific Warm Pool: critical to world oceanography and world climate. 
+    Geosci. Lett. 3, 20 (2016). https://doi.org/10.1186/s40562-016-0054-3
+    .. [2] Cravatte, S., Delcroix, T., Zhang, D. et al. Observed freshening and warming of the western Pacific Warm Pool. 
+    Clim Dyn 33, 565–589 (2009). https://doi.org/10.1007/s00382-009-0526-7
+
+    Examples
+    --------
+    result = surface_isotherm(DS.thetao.isel(depth=0),threshold = 28.5)
+    
+    """
+    SST_isotherm = ocean_SST_da.where(ocean_SST_da >= threshold)
+    return SST_isotherm
+
