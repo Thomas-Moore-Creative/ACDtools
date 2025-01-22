@@ -200,6 +200,118 @@ def add_inside_text(ax, text, position='bottom', fontsize=10, color='gray', styl
         weight=weight
     )
 
+def add_diagonal_text(
+    ax, 
+    text, 
+    fontsize=20, 
+    color="white", 
+    rotation=45, 
+    alpha=0.5, 
+    box_color="black", 
+    spacing=0, 
+    position="center"
+):
+    """
+    Adds a semi-transparent block of text diagonally across a Matplotlib plot with flexible positioning.
+    
+    Args:
+        ax: The Matplotlib axes object to add the text to.
+        text: The text to display (string).
+        fontsize: Font size of the text (default: 20).
+        color: Color of the text (default: "white").
+        rotation: Angle to rotate the text (default: 45).
+        alpha: Transparency level of the text and background (0 to 1, default: 0.5).
+        box_color: Background color of the text box (default: "black").
+        spacing: Number of spaces to add between characters (default: 0).
+        position: Text position ('center', 'top-center', 'bottom-center', 
+                  'top-left', 'top-right', 'bottom-left', 'bottom-right').
+    """
+    # Add spacing between characters
+    spaced_text = (" " * spacing).join(text)
+
+    # Define position mappings in axes-relative coordinates
+    position_coords = {
+        "center": (0.5, 0.5),
+        "top-center": (0.5, 0.9),
+        "bottom-center": (0.5, 0.1),
+        "top-left": (0.1, 0.9),
+        "top-right": (0.9, 0.9),
+        "bottom-left": (0.1, 0.1),
+        "bottom-right": (0.9, 0.1),
+    }
+
+    # Get coordinates for the selected position
+    x, y = position_coords.get(position, (0.5, 0.5))  # Default to 'center' if position is invalid
+
+    # Add text to the plot
+    ax.text(
+        x, y,                          # Position based on the selected alignment
+        spaced_text,                   # Text with spacing
+        fontsize=fontsize,             # Font size
+        color=color,                   # Text color
+        rotation=rotation,             # Rotate text
+        ha="center",                   # Horizontal alignment
+        va="center",                   # Vertical alignment
+        alpha=alpha,                   # Transparency for text
+        bbox=dict(
+            facecolor=box_color,       # Background color
+            alpha=alpha,               # Transparency for background
+            edgecolor="none",          # No border
+            boxstyle="round,pad=0.5"   # Rounded rectangle with padding
+        ),
+        transform=ax.transAxes         # Use axes-relative coordinates
+    )
+
+def add_contours(
+    ax, 
+    data, 
+    lat_name="lat", 
+    lon_name="lon", 
+    levels=None, 
+    colors=None, 
+    linewidths=0.8, 
+    linestyles="solid", 
+    labels=False, 
+    transform=ccrs.PlateCarree()
+):
+    """
+    Adds line contours from a single data array to an existing Cartopy plot with customizable colors.
+    
+    Args:
+        ax: The Cartopy Axes object to plot on.
+        data: 2D data array with associated latitude and longitude coordinates.
+        lat_name: Name of the latitude coordinate in the data array (default: "lat").
+        lon_name: Name of the longitude coordinate in the data array (default: "lon").
+        levels: Contour levels (default: None, automatic levels).
+        colors: List of colors for contour lines (default: None, uses Matplotlib defaults).
+        linewidths: Line width of contour lines (default: 0.8).
+        linestyles: Line style for contour lines (default: "solid").
+        labels: Whether to label the contours (default: False).
+        transform: Coordinate reference system of the data (default: PlateCarree).
+    """
+    # Extract latitude and longitude from the data array
+    lats = data[lat_name]
+    lons = data[lon_name]
+    
+    # Create the meshgrid
+    lon2d, lat2d = np.meshgrid(lons, lats)
+    
+    # Add contour lines with custom colors
+    lines = ax.contour(
+        lon2d, lat2d, data, 
+        levels=levels, 
+        colors=colors,        # Custom colors
+        linewidths=linewidths, 
+        linestyles=linestyles, 
+        transform=transform
+    )
+    
+    # Add contour labels if requested
+    if labels:
+        ax.clabel(lines, inline=True, fontsize=8, fmt="%.1f")
+
+
+
 
 
     

@@ -52,4 +52,77 @@ chunking:
       lev: -1
       i: -1
       j: -1
-  
+lon_lat_locations:
+  WCPFC:
+    latitudes: [
+    -21.236,  # Cook Islands
+     6.887,   # Federated States of Micronesia
+    -17.713,  # Fiji
+     1.870,   # Kiribati
+    -0.522,   # Nauru
+    -19.054,  # Niue
+     7.514,   # Palau
+    -6.314,   # Papua New Guinea
+     7.131,   # Republic of Marshall Islands
+    -13.759,  # Samoa
+    -9.645,   # Solomon Islands
+    -21.179,  # Tonga
+    -7.109,   # Tuvalu
+    -15.376,  # Vanuatu
+    -14.271,  # American Samoa
+    15.213,   # Commonwealth of the Northern Mariana Islands
+    -17.679,  # French Polynesia
+    13.444,   # Guam
+    -21.244,  # New Caledonia
+    -9.200,   # Tokelau
+    -13.300   # Wallis and Futuna
+    ]
+    longitudes: [
+    -159.777,  # Cook Islands
+    158.186,   # Federated States of Micronesia
+    178.065,   # Fiji
+    -157.363,  # Kiribati
+    166.931,   # Nauru
+    -169.867,  # Niue
+    134.582,   # Palau
+    143.955,   # Papua New Guinea
+    171.184,   # Republic of Marshall Islands
+    -172.104,  # Samoa
+    160.156,   # Solomon Islands
+    -175.198,  # Tonga
+    179.194,   # Tuvalu
+    167.962,   # Vanuatu
+    -170.132,  # American Samoa
+    145.750,   # Commonwealth of the Northern Mariana Islands
+    -149.406,  # French Polynesia
+    144.793,   # Guam
+    165.618,   # New Caledonia
+    -171.847,  # Tokelau
+    -176.194   # Wallis and Futuna
+    ]
+    labels: [
+    "Cook Islands",
+    "Micronesia",
+    "Fiji",
+    "Kiribati",
+    "Nauru",
+    "Niue",
+    "Palau",
+    "Papua New Guinea",
+    "Marshall Islands",
+    "Samoa",
+    "Solomon Islands",
+    "Tonga",
+    "Tuvalu",
+    "Vanuatu",
+    "American Samoa",
+    "Northern Mariana Islands",
+    "French Polynesia",
+    "Guam",
+    "New Caledonia",
+    "Tokelau",
+    "Wallis and Futuna"
+    ]
+plotting:
+  CSEPTA:
+    path_for_savefig: '/g/data/es60/users/thomas_moore/plots/CSEPTA/'
