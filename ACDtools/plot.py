@@ -14,12 +14,17 @@ import numpy as np
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
-import cartopy.feature as cfeature
+from cartopy import feature as cfeature
+from cartopy.feature import NaturalEarthFeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import cmocean
 import cmocean.cm as cmo
+# holoviews
+import holoviews as hv
+import geoviews as gv
+from holoviews import opts
 
 # Local application imports (if needed)
 #from .my_local_module import my_function
@@ -310,9 +315,83 @@ def add_contours(
     if labels:
         ax.clabel(lines, inline=True, fontsize=8, fmt="%.1f")
 
+def tropical_pacific_hv(
+    data, 
+    lon_name='longitude', 
+    lat_name='latitude',
+    central_longitude=180,
+    extent=[130, 290, -60, 30],
+    title='Tropical Pacific',
+    cmap='Viridis',
+    colorbar=True,
+    **kwargs
+):
+    """
+    Create a tropical Pacific plot using HoloViews and GeoViews.
 
+    Parameters:
+    - data: xarray.DataArray
+        2D data to plot (must include longitude and latitude).
+    - lon_name: str
+        Name of the longitude coordinate in the data.
+    - lat_name: str
+        Name of the latitude coordinate in the data.
+    - central_longitude: float
+        Central longitude for the map projection.
+    - extent: list of floats
+        Plot extent in the format [lon_min, lon_max, lat_min, lat_max].
+    - title: str
+        Title of the plot.
+    - cmap: str
+        Colormap to use for the plot.
+    - colorbar: bool
+        Whether to include a colorbar.
+    - **kwargs:
+        Additional keyword arguments passed to gv.Image.
 
-
-
-
+    Returns:
+    - plot: HoloViews/GeoViews object
+        Interactive plot.
+    """
+    # Set up the PlateCarree projection for visualization
+    projection = ccrs.PlateCarree(central_longitude=central_longitude)
     
+    # Define the CRS of the data (assuming 0-360 longitude range)
+    data_crs = ccrs.PlateCarree(central_longitude=0)
+    
+    # Create the GeoViews Feature for land
+    land_feature = NaturalEarthFeature(
+        category='physical',
+        name='land',
+        scale='50m',
+        edgecolor='black',
+        facecolor='lightgray'
+    )
+    land = gv.Feature(land_feature, crs=projection)
+    
+    # Ensure data is an xarray.DataArray
+    if not isinstance(data, xr.DataArray):
+        raise ValueError("Input data must be an xarray.DataArray")
+    
+    # Create a GeoViews Image for the data
+    gv_image = gv.Image(data, kdims=[lon_name, lat_name], vdims=data.name, crs=data_crs).opts(
+        cmap=cmap,
+        colorbar=colorbar,
+        projection=projection,
+        tools=['hover'],
+        frame_width=600,
+        **kwargs
+    )
+    
+    # Combine the data plot with the land feature
+    plot = (gv_image * land).opts(
+        opts.Overlay(
+            title=title,
+            xlim=(extent[0], extent[1]),
+            ylim=(extent[2], extent[3]),
+            xlabel='Longitude',
+            ylabel='Latitude',
+        )
+    )
+    
+    return plot

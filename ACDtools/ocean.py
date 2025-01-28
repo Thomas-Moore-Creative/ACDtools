@@ -193,3 +193,66 @@ def surface_isotherm(ocean_SST_da,threshold = 28.5):
     SST_isotherm = ocean_SST_da.where(ocean_SST_da >= threshold)
     return SST_isotherm
 
+def interpolate_isotherm_depth(da, target=20.0, depth_coord='pres'):
+    """
+    Interpolates the depth at which a specified target temperature value occurs 
+    along a given depth coordinate in an xarray DataArray.
+
+    This function identifies the shallowest crossing of the target value
+    and performs linear interpolation to determine the precise depth where 
+    the target value is reached. If the values bounding the target are 
+    identical, an error is raised to prevent division by zero.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        The input DataArray containing temperature values, indexed 
+        by the depth coordinate.
+    target : float, optional
+        The target temperature value for which to find the depth.
+        Default is 20.0.
+    depth_coord : str, optional
+        The name of the depth coordinate in the DataArray. Default is 'pres'.
+
+    Returns
+    -------
+    float
+        The interpolated depth at which the target temperature value occurs.
+
+    Raises
+    ------
+    ValueError
+        If the values bounding the target temperature value (value_A and value_B) 
+        are identical, which would result in a division by zero.
+
+    Examples
+    --------
+    >>> import xarray as xr
+    >>> import numpy as np
+    >>> da = xr.DataArray(oxygen, coords={"pres": depth}, dims=["pres"])
+    >>> interpolate_isotherm_depth(da, target=20)
+
+
+    Notes
+    -----
+    - The function assumes that the depth coordinate is monotonic and increasing.
+    - If there are multiple crossings of the target value, the function returns
+      the shallowest crossing.
+    """
+    mask = da <= target
+    just_below_target = mask * ~(mask.shift({depth_coord: 1}, fill_value=False))
+    just_above_target = ~mask * (mask.shift({depth_coord: -1}, fill_value=False))
+    # depths for shallowest target value crossing
+    depth_A = just_above_target[depth_coord].where(just_above_target).min(depth_coord)
+    depth_B = just_below_target[depth_coord].where(just_below_target).min(depth_coord)
+    # Get the values corresponding to the bounds for shallowest target value crossing
+    value_A = da.where(just_above_target).min(depth_coord)
+    value_B = da.where(just_below_target).min(depth_coord)
+    # test that values are not the same anywhere
+    equal_mask = value_A == value_B
+    if equal_mask.any():
+        raise ValueError("Cannot interpolate with identical values (value_A == value_B).")
+    # Linear interpolation formula
+    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (depth_B - depth_A)
+    return interpolated_depth
+

@@ -336,6 +336,24 @@ def replace_zero_w_nan(data_w_zero):
     data_w_nan = data_w_zero.where(data_w_zero != 0)
     data_w_nan.attrs['post_processing_note'] = 'zero values replaced with NaNs'
     return data_w_nan
+
+
+def convert_longitude_360_2_180(da, lon_name='longitude'):
+    """
+    Convert longitude values from 0-360 to -180 to 180.
+
+    Parameters:
+    - da: xarray.DataArray or xarray.Dataset
+        Input data with longitude values in the range 0-360.
+    - lon_name: str
+        Name of the longitude coordinate.
+
+    Returns:
+    - xarray.DataArray or xarray.Dataset
+        Data with longitude values converted to -180 to 180.
+    """
+    da = da.assign_coords(**{lon_name: ((da[lon_name] + 180) % 360) - 180})
+    return da.sortby(lon_name)
         
 
 
