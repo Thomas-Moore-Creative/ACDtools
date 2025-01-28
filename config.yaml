@@ -75,7 +75,8 @@ lon_lat_locations:
     13.444,   # Guam
     -21.244,  # New Caledonia
     -9.200,   # Tokelau
-    -13.300   # Wallis and Futuna
+    -13.300,   # Wallis and Futuna
+    20.7984
     ]
     longitudes: [
     -159.777,  # Cook Islands
@@ -98,7 +99,8 @@ lon_lat_locations:
     144.793,   # Guam
     165.618,   # New Caledonia
     -171.847,  # Tokelau
-    -176.194   # Wallis and Futuna
+    -176.194,   # Wallis and Futuna
+    -156.3319
     ]
     labels: [
     "Cook Islands",
@@ -121,7 +123,8 @@ lon_lat_locations:
     "Guam",
     "New Caledonia",
     "Tokelau",
-    "Wallis and Futuna"
+    "Wallis and Futuna",
+    "Maui"
     ]
 plotting:
   CSEPTA:
