@@ -4,9 +4,8 @@ ocean.py
 This module contains a collection of functions for calculating oceanographic metrics.
 Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore@csiro.au", "orcid": "0000-0003-3930-1946"}
 """
+
 # Standard library imports
-import os
-import datetime
 
 
 # Third-party imports
@@ -14,9 +13,10 @@ import numpy as np
 import xarray as xr
 
 # Local application imports (if needed)
-#from .my_local_module import my_function
+# from .my_local_module import my_function
 
-def threshold_depth(da,chosen_threshold=90,depth_name='pres'):
+
+def threshold_depth(da, chosen_threshold=90, depth_name="pres"):
     """
     Given a gridded oceanographic data array (da) with some x,y, and z dimensions and a threshold value (threshold)
     will calculate both the depth of the first threshold crossing as well as the total number of crossings in each water column.
@@ -29,14 +29,14 @@ def threshold_depth(da,chosen_threshold=90,depth_name='pres'):
         Chosen threshold value. Default is 90.0
     depth_name : str
         Name of the depth dimension in the da.  Default is 'pres'.
-        
+
 
     Returns
     -------
     list of data arrays [first_depth_below_threshold, count_drops_below_threshold]
         first_depth_below_threshold is the shallowest depth in the water column where the threshold is reached.
         count_drops_below_threshold is how many times in the water column values drop below the threshold.
-    
+
     Examples:
         >>> [first_depth_below_threshold, count_drops_below_threshold] = threshold_depth(my_da,chosen_threshold=20,depth_name='depth')
     """
@@ -46,13 +46,16 @@ def threshold_depth(da,chosen_threshold=90,depth_name='pres'):
     # find grid point depth of first threshold value
     depths_where_below_threshold = da[depth_name].where(mask)
     first_depth_below_threshold = depths_where_below_threshold.min(dim=depth_name)
-    first_depth_below_threshold = first_depth_below_threshold.where(mask.any(dim=depth_name), np.nan)
+    first_depth_below_threshold = first_depth_below_threshold.where(
+        mask.any(dim=depth_name), np.nan
+    )
     # count crossings
     drops_below_threshold = mask.astype(int).diff(dim=depth_name) == 1
     count_drops_below_threshold = drops_below_threshold.sum(dim=depth_name)
-    return first_depth_below_threshold,count_drops_below_threshold
+    return first_depth_below_threshold, count_drops_below_threshold
 
-def layer_statistics(da,var_name,layer_depth = 300,depth_name = 'pres'):
+
+def layer_statistics(da, var_name, layer_depth=300, depth_name="pres"):
     """
     Given a gridded oceanographic data array (da) with some x,y, and z dimensions and a depth value (layer_depth)
     will calculate statistics and integrated values from the surface to the chosen depth level
@@ -67,44 +70,51 @@ def layer_statistics(da,var_name,layer_depth = 300,depth_name = 'pres'):
         Name of the depth dimension in the da.  Default is 'pres'.
     var_name :  str
         Name of the variable
-        
+
     Returns
     -------
     layer_stats_ds - dataset with statistics and integrated values across the layer
-    
+
     Examples:
         >>> layer_stats_ds = layer_statistics(da,var_name='oxy',layer_depth = 300,depth_name = 'pres')
     """
-    layer = da.where(da[depth_name]<=layer_depth,drop=True)
+    layer = da.where(da[depth_name] <= layer_depth, drop=True)
     # stats
-    layer_stats = [layer.mean(depth_name).rename(var_name+'_mean'),layer.min('pres').rename(var_name+'_min'),layer.max('pres').rename(var_name+'_max')]
+    layer_stats = [
+        layer.mean(depth_name).rename(var_name + "_mean"),
+        layer.min("pres").rename(var_name + "_min"),
+        layer.max("pres").rename(var_name + "_max"),
+    ]
     # Create Dataset dynamically
     layer_stats_ds = xr.Dataset()
     for da in layer_stats:
         layer_stats_ds[da.name] = da  # Use the DataArray's name as the variable name
     # integral
     dz = layer[depth_name].diff(depth_name)
-    layer_sum_integral = (layer*dz).sum(dim=depth_name)
+    layer_sum_integral = (layer * dz).sum(dim=depth_name)
     layer_sum_integral = layer_sum_integral.where(layer_sum_integral != 0)
     layer_trapezoidal_integral = layer.integrate(depth_name)
-    layer_stats_ds[var_name+'_layer_sum_integral'] = layer_sum_integral
-    layer_stats_ds[var_name+'_layer_trapezoidal_integral'] = layer_trapezoidal_integral
+    layer_stats_ds[var_name + "_layer_sum_integral"] = layer_sum_integral
+    layer_stats_ds[var_name + "_layer_trapezoidal_integral"] = (
+        layer_trapezoidal_integral
+    )
     return layer_stats_ds
 
-def interpolate_oxygen_target_depth(da, target=90.0, depth_coord='pres'):
+
+def interpolate_oxygen_target_depth(da, target=90.0, depth_coord="pres"):
     """
-    Interpolates the depth at which a specified target oxygen value occurs 
+    Interpolates the depth at which a specified target oxygen value occurs
     along a given depth coordinate in an xarray DataArray.
 
     This function identifies the shallowest crossing of the target value
-    and performs linear interpolation to determine the precise depth where 
-    the target value is reached. If the values bounding the target are 
+    and performs linear interpolation to determine the precise depth where
+    the target value is reached. If the values bounding the target are
     identical, an error is raised to prevent division by zero.
 
     Parameters
     ----------
     da : xarray.DataArray
-        The input DataArray containing oxygen concentration values, indexed 
+        The input DataArray containing oxygen concentration values, indexed
         by the depth coordinate.
     target : float, optional
         The target oxygen concentration value for which to find the depth.
@@ -120,7 +130,7 @@ def interpolate_oxygen_target_depth(da, target=90.0, depth_coord='pres'):
     Raises
     ------
     ValueError
-        If the values bounding the target oxygen value (value_A and value_B) 
+        If the values bounding the target oxygen value (value_A and value_B)
         are identical, which would result in a division by zero.
 
     Examples
@@ -151,12 +161,17 @@ def interpolate_oxygen_target_depth(da, target=90.0, depth_coord='pres'):
     # test that values are not the same anywhere
     equal_mask = value_A == value_B
     if equal_mask.any():
-        raise ValueError("Cannot interpolate with identical values (value_A == value_B).")
+        raise ValueError(
+            "Cannot interpolate with identical values (value_A == value_B)."
+        )
     # Linear interpolation formula
-    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (depth_B - depth_A)
+    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (
+        depth_B - depth_A
+    )
     return interpolated_depth
 
-def surface_isotherm(ocean_SST_da,threshold = 28.5):
+
+def surface_isotherm(ocean_SST_da, threshold=28.5):
     r"""calculate warm pool metrics based on a threshold
 
     Parameters
@@ -179,34 +194,35 @@ def surface_isotherm(ocean_SST_da,threshold = 28.5):
 
     References
     ----------
-    
-    .. [1] De Deckker, P. The Indo-Pacific Warm Pool: critical to world oceanography and world climate. 
+
+    .. [1] De Deckker, P. The Indo-Pacific Warm Pool: critical to world oceanography and world climate.
     Geosci. Lett. 3, 20 (2016). https://doi.org/10.1186/s40562-016-0054-3
-    .. [2] Cravatte, S., Delcroix, T., Zhang, D. et al. Observed freshening and warming of the western Pacific Warm Pool. 
+    .. [2] Cravatte, S., Delcroix, T., Zhang, D. et al. Observed freshening and warming of the western Pacific Warm Pool.
     Clim Dyn 33, 565–589 (2009). https://doi.org/10.1007/s00382-009-0526-7
 
     Examples
     --------
     result = surface_isotherm(DS.thetao.isel(depth=0),threshold = 28.5)
-    
+
     """
     SST_isotherm = ocean_SST_da.where(ocean_SST_da >= threshold)
     return SST_isotherm
 
-def interpolate_isotherm_depth(da, target=20.0, depth_coord='pres'):
+
+def interpolate_isotherm_depth(da, target=20.0, depth_coord="pres"):
     """
-    Interpolates the depth at which a specified target temperature value occurs 
+    Interpolates the depth at which a specified target temperature value occurs
     along a given depth coordinate in an xarray DataArray.
 
     This function identifies the shallowest crossing of the target value
-    and performs linear interpolation to determine the precise depth where 
-    the target value is reached. If the values bounding the target are 
+    and performs linear interpolation to determine the precise depth where
+    the target value is reached. If the values bounding the target are
     identical, an error is raised to prevent division by zero.
 
     Parameters
     ----------
     da : xarray.DataArray
-        The input DataArray containing temperature values, indexed 
+        The input DataArray containing temperature values, indexed
         by the depth coordinate.
     target : float, optional
         The target temperature value for which to find the depth.
@@ -222,7 +238,7 @@ def interpolate_isotherm_depth(da, target=20.0, depth_coord='pres'):
     Raises
     ------
     ValueError
-        If the values bounding the target temperature value (value_A and value_B) 
+        If the values bounding the target temperature value (value_A and value_B)
         are identical, which would result in a division by zero.
 
     Examples
@@ -251,8 +267,11 @@ def interpolate_isotherm_depth(da, target=20.0, depth_coord='pres'):
     # test that values are not the same anywhere
     equal_mask = value_A == value_B
     if equal_mask.any():
-        raise ValueError("Cannot interpolate with identical values (value_A == value_B).")
+        raise ValueError(
+            "Cannot interpolate with identical values (value_A == value_B)."
+        )
     # Linear interpolation formula
-    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (depth_B - depth_A)
+    interpolated_depth = depth_A + ((target - value_A) / (value_B - value_A)) * (
+        depth_B - depth_A
+    )
     return interpolated_depth
-

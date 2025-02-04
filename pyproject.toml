@@ -30,6 +30,8 @@ dev = [
     "mypy",     # linting
     "pytest",   # testing
     "ruff",     # linting
+    "types-PyYAML", 
+    "types-tabulate",
 ]
 
 [project.scripts]

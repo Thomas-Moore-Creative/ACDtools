@@ -4,5 +4,5 @@ import pytest
 
 # @pytest.fixture
 # def sample_data():
-    # Example fixture that provides data for tests
+# Example fixture that provides data for tests
 #    return {"key": "value", "number": 42}

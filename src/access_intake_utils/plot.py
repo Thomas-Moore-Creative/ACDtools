@@ -4,36 +4,42 @@ plot.py
 This module contains a collection of functions for ploting and making figures.
 Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore@csiro.au", "orcid": "0000-0003-3930-1946"}
 """
+
 # Standard library imports
-import os
-import datetime
 
 
 # Third-party imports
-import numpy as np
-import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
-from cartopy import feature as cfeature
-from cartopy.feature import NaturalEarthFeature
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+
+# holoviews
+import geoviews as gv
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import cmocean
-import cmocean.cm as cmo
-# holoviews
-import holoviews as hv
-import geoviews as gv
+import numpy as np
+import xarray as xr
+from cartopy import feature as cfeature
+from cartopy.feature import NaturalEarthFeature
+from cartopy.mpl.ticker import LatitudeFormatter, LongitudeFormatter
 from holoviews import opts
 
 # Local application imports (if needed)
-#from .my_local_module import my_function
+# from .my_local_module import my_function
 
-def tropical_pacific(central_longitude=180,figsize=(16,16),extent=[130, 290, -60, 30],
-                    xticks=[150, 180, 210,240,270],yticks=[-60,-30, -10, 0, 10],
-                    xstride=10,ystride=10,my_plot_title='my_plot_title',optional_plot_data=None,
-                    cbar_kwargs = {'orientation':'horizontal', 'shrink':0.6, "pad" : .05, 'aspect':40},
-                    **kwargs):
+
+def tropical_pacific(
+    central_longitude=180,
+    figsize=(16, 16),
+    extent=[130, 290, -60, 30],
+    xticks=[150, 180, 210, 240, 270],
+    yticks=[-60, -30, -10, 0, 10],
+    xstride=10,
+    ystride=10,
+    my_plot_title="my_plot_title",
+    optional_plot_data=None,
+    cbar_kwargs={"orientation": "horizontal", "shrink": 0.6, "pad": 0.05, "aspect": 40},
+    **kwargs,
+):
     """
     plot_PlateCarree()
     - Make a geographic plot with the PlateCarree projection.
@@ -63,17 +69,21 @@ def tropical_pacific(central_longitude=180,figsize=(16,16),extent=[130, 290, -60
     """
     long_list = np.arange(-180, 180, xstride)
     lat_list = np.arange(-90, 90, ystride)
-                        
+
     proj = ccrs.PlateCarree(central_longitude=central_longitude)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection=proj), figsize=figsize)
-    #fig.canvas.draw()
-    
-    resolution='50m'
-    land = cartopy.feature.NaturalEarthFeature('physical', 'land', \
-        scale=resolution, edgecolor='k', facecolor=cfeature.COLORS['land'])
-    ax.add_feature(land)
+    # fig.canvas.draw()
 
+    resolution = "50m"
+    land = cartopy.feature.NaturalEarthFeature(
+        "physical",
+        "land",
+        scale=resolution,
+        edgecolor="k",
+        facecolor=cfeature.COLORS["land"],
+    )
+    ax.add_feature(land)
 
     gl = ax.gridlines(crs=proj, draw_labels=False, alpha=0.3, linewidth=0.5)
     gl.xlocator = mticker.FixedLocator(long_list)
@@ -87,11 +97,14 @@ def tropical_pacific(central_longitude=180,figsize=(16,16),extent=[130, 290, -60
     ax.yaxis.set_major_formatter(lat_formatter)
     if optional_plot_data is not None:
         ##### plotting filled contours#####
-        optional_plot_data.plot.contourf(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs=cbar_kwargs, **kwargs)
+        optional_plot_data.plot.contourf(
+            ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs=cbar_kwargs, **kwargs
+        )
     ax.set_extent(extent, crs=ccrs.PlateCarree())
     plt.title(my_plot_title)
     fig.tight_layout()
     return ax, fig
+
 
 def add_points_and_labels(ax, latitudes, longitudes, labels):
     """
@@ -105,26 +118,37 @@ def add_points_and_labels(ax, latitudes, longitudes, labels):
     Example:
         add_points_and_labels(ax, latitudes, longitudes, labels)
         # Show the plot
-        plt.show()   
+        plt.show()
     """
     for lat, lon, loc in zip(latitudes, longitudes, labels):
-        ax.scatter(lon, lat, color='red', s=50, transform=ccrs.PlateCarree(), label=loc)
-        if loc == 'American Samoa':
+        ax.scatter(lon, lat, color="red", s=50, transform=ccrs.PlateCarree(), label=loc)
+        if loc == "American Samoa":
             lat += -1.5
             lon += -1.0
-        if loc == 'Samoa':
+        if loc == "Samoa":
             lat += -2.0
             lon += -5.0
-        if loc == 'Wallis and Futuna':
+        if loc == "Wallis and Futuna":
             lat += 1.0
             lon += -1.0
 
-        ax.text(lon + 1, lat, loc, fontsize=10, color='black', transform=ccrs.PlateCarree())
+        ax.text(
+            lon + 1, lat, loc, fontsize=10, color="black", transform=ccrs.PlateCarree()
+        )
 
-def add_outside_text(fig, text, position='bottom-right', fontsize=10, color='gray', style='italic', weight=None):
+
+def add_outside_text(
+    fig,
+    text,
+    position="bottom-right",
+    fontsize=10,
+    color="gray",
+    style="italic",
+    weight=None,
+):
     """
     Adds a line of text outside the bounding box of a plot.
-    
+
     Args:
         fig: The Matplotlib figure object.
         text: The text to add (string).
@@ -136,30 +160,38 @@ def add_outside_text(fig, text, position='bottom-right', fontsize=10, color='gra
     """
     # Define default positions for 'top', 'bottom', 'top-right', and 'bottom-right'
     positions = {
-        'bottom': (0.5, 0.03),       # Just above the bottom of the plot
-        'top': (0.5, 0.92),          # Just below the top of the plot
-        'top-right': (0.98, 0.92),   # Near the top-right corner of the plot
-        'bottom-right': (0.98, 0.03) # Near the bottom-right corner of the plot
+        "bottom": (0.5, 0.03),  # Just above the bottom of the plot
+        "top": (0.5, 0.92),  # Just below the top of the plot
+        "top-right": (0.98, 0.92),  # Near the top-right corner of the plot
+        "bottom-right": (0.98, 0.03),  # Near the bottom-right corner of the plot
     }
-    
+
     # Use predefined positions or custom coordinates
-    x, y = positions.get(position, position if isinstance(position, tuple) else (0.5, 0.02))
-    
-    # Add text to the figure
-    fig.text(
-        x, y, 
-        text, 
-        ha='right' if 'right' in position else 'center',  # Align right for 'top-right' and 'bottom-right'
-        fontsize=fontsize, 
-        color=color, 
-        style=style, 
-        weight=weight
+    x, y = positions.get(
+        position, position if isinstance(position, tuple) else (0.5, 0.02)
     )
 
-def add_inside_text(ax, text, position='bottom', fontsize=10, color='gray', style='italic', weight=None):
+    # Add text to the figure
+    fig.text(
+        x,
+        y,
+        text,
+        ha=(
+            "right" if "right" in position else "center"
+        ),  # Align right for 'top-right' and 'bottom-right'
+        fontsize=fontsize,
+        color=color,
+        style=style,
+        weight=weight,
+    )
+
+
+def add_inside_text(
+    ax, text, position="bottom", fontsize=10, color="gray", style="italic", weight=None
+):
     """
     Adds a line of text just inside the bounding box of a plot, with improved alignment and positioning.
-    
+
     Args:
         ax: The Matplotlib axes object.
         text: The text to add (string).
@@ -171,54 +203,64 @@ def add_inside_text(ax, text, position='bottom', fontsize=10, color='gray', styl
     """
     # Get the bounding box of the plot within the figure
     bbox = ax.get_position()
-    
+
     # Define positions relative to the plot's bounding box
     # Adjusted offsets for closer placement to bounds
     positions = {
-        'bottom': (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y0 + 0.005),  # Bottom center
-        'top': (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y1 - 0.005),    # Top center
-        'top-right': (bbox.x1 - 0.02, bbox.y1 - 0.015),                 # Slightly lower top-right corner
-        'bottom-right': (bbox.x1 - 0.02, bbox.y0 + 0.005),             # Bottom-right corner
-        'bottom-left': (bbox.x0 + 0.02, bbox.y0 + 0.005)               # Slightly inward and aligned left
+        "bottom": (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y0 + 0.005),  # Bottom center
+        "top": (bbox.x0 + (bbox.x1 - bbox.x0) / 2, bbox.y1 - 0.005),  # Top center
+        "top-right": (
+            bbox.x1 - 0.02,
+            bbox.y1 - 0.015,
+        ),  # Slightly lower top-right corner
+        "bottom-right": (bbox.x1 - 0.02, bbox.y0 + 0.005),  # Bottom-right corner
+        "bottom-left": (
+            bbox.x0 + 0.02,
+            bbox.y0 + 0.005,
+        ),  # Slightly inward and aligned left
     }
-    
+
     # Determine alignment based on position
     alignment = {
-        'top-right': 'right',
-        'bottom-right': 'right',
-        'bottom-left': 'left',
-        'top': 'center',
-        'bottom': 'center'
+        "top-right": "right",
+        "bottom-right": "right",
+        "bottom-left": "left",
+        "top": "center",
+        "bottom": "center",
     }
-    
+
     # Use predefined positions or custom coordinates
-    x, y = positions.get(position, position if isinstance(position, tuple) else (0.5, bbox.y0 + 0.005))
-    
-    # Add text to the figure
-    ax.figure.text(
-        x, y, 
-        text, 
-        ha=alignment.get(position, 'center'),  # Adjust alignment based on position
-        fontsize=fontsize, 
-        color=color, 
-        style=style, 
-        weight=weight
+    x, y = positions.get(
+        position, position if isinstance(position, tuple) else (0.5, bbox.y0 + 0.005)
     )
 
+    # Add text to the figure
+    ax.figure.text(
+        x,
+        y,
+        text,
+        ha=alignment.get(position, "center"),  # Adjust alignment based on position
+        fontsize=fontsize,
+        color=color,
+        style=style,
+        weight=weight,
+    )
+
+
 def add_diagonal_text(
-    ax, 
-    text, 
-    fontsize=20, 
-    color="white", 
-    rotation=45, 
-    alpha=0.5, 
-    box_color="black", 
-    spacing=0, 
-    position="center"
+    ax,
+    text,
+    fontsize=20,
+    color="white",
+    rotation=45,
+    alpha=0.5,
+    box_color="black",
+    spacing=0,
+    position="center",
 ):
     """
     Adds a semi-transparent block of text diagonally across a Matplotlib plot with flexible positioning.
-    
+
     Args:
         ax: The Matplotlib axes object to add the text to.
         text: The text to display (string).
@@ -228,7 +270,7 @@ def add_diagonal_text(
         alpha: Transparency level of the text and background (0 to 1, default: 0.5).
         box_color: Background color of the text box (default: "black").
         spacing: Number of spaces to add between characters (default: 0).
-        position: Text position ('center', 'top-center', 'bottom-center', 
+        position: Text position ('center', 'top-center', 'bottom-center',
                   'top-left', 'top-right', 'bottom-left', 'bottom-right').
     """
     # Add spacing between characters
@@ -246,42 +288,46 @@ def add_diagonal_text(
     }
 
     # Get coordinates for the selected position
-    x, y = position_coords.get(position, (0.5, 0.5))  # Default to 'center' if position is invalid
+    x, y = position_coords.get(
+        position, (0.5, 0.5)
+    )  # Default to 'center' if position is invalid
 
     # Add text to the plot
     ax.text(
-        x, y,                          # Position based on the selected alignment
-        spaced_text,                   # Text with spacing
-        fontsize=fontsize,             # Font size
-        color=color,                   # Text color
-        rotation=rotation,             # Rotate text
-        ha="center",                   # Horizontal alignment
-        va="center",                   # Vertical alignment
-        alpha=alpha,                   # Transparency for text
+        x,
+        y,  # Position based on the selected alignment
+        spaced_text,  # Text with spacing
+        fontsize=fontsize,  # Font size
+        color=color,  # Text color
+        rotation=rotation,  # Rotate text
+        ha="center",  # Horizontal alignment
+        va="center",  # Vertical alignment
+        alpha=alpha,  # Transparency for text
         bbox=dict(
-            facecolor=box_color,       # Background color
-            alpha=alpha,               # Transparency for background
-            edgecolor="none",          # No border
-            boxstyle="round,pad=0.5"   # Rounded rectangle with padding
+            facecolor=box_color,  # Background color
+            alpha=alpha,  # Transparency for background
+            edgecolor="none",  # No border
+            boxstyle="round,pad=0.5",  # Rounded rectangle with padding
         ),
-        transform=ax.transAxes         # Use axes-relative coordinates
+        transform=ax.transAxes,  # Use axes-relative coordinates
     )
 
+
 def add_contours(
-    ax, 
-    data, 
-    lat_name="lat", 
-    lon_name="lon", 
-    levels=None, 
-    colors=None, 
-    linewidths=0.8, 
-    linestyles="solid", 
-    labels=False, 
-    transform=ccrs.PlateCarree()
+    ax,
+    data,
+    lat_name="lat",
+    lon_name="lon",
+    levels=None,
+    colors=None,
+    linewidths=0.8,
+    linestyles="solid",
+    labels=False,
+    transform=ccrs.PlateCarree(),
 ):
     """
     Adds line contours from a single data array to an existing Cartopy plot with customizable colors.
-    
+
     Args:
         ax: The Cartopy Axes object to plot on.
         data: 2D data array with associated latitude and longitude coordinates.
@@ -297,34 +343,37 @@ def add_contours(
     # Extract latitude and longitude from the data array
     lats = data[lat_name]
     lons = data[lon_name]
-    
+
     # Create the meshgrid
     lon2d, lat2d = np.meshgrid(lons, lats)
-    
+
     # Add contour lines with custom colors
     lines = ax.contour(
-        lon2d, lat2d, data, 
-        levels=levels, 
-        colors=colors,        # Custom colors
-        linewidths=linewidths, 
-        linestyles=linestyles, 
-        transform=transform
+        lon2d,
+        lat2d,
+        data,
+        levels=levels,
+        colors=colors,  # Custom colors
+        linewidths=linewidths,
+        linestyles=linestyles,
+        transform=transform,
     )
-    
+
     # Add contour labels if requested
     if labels:
         ax.clabel(lines, inline=True, fontsize=8, fmt="%.1f")
 
+
 def tropical_pacific_hv(
-    data, 
-    lon_name='longitude', 
-    lat_name='latitude',
+    data,
+    lon_name="longitude",
+    lat_name="latitude",
     central_longitude=180,
     extent=[130, 290, -60, 30],
-    title='Tropical Pacific',
-    cmap='Viridis',
+    title="Tropical Pacific",
+    cmap="Viridis",
     colorbar=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Create a tropical Pacific plot using HoloViews and GeoViews.
@@ -355,43 +404,45 @@ def tropical_pacific_hv(
     """
     # Set up the PlateCarree projection for visualization
     projection = ccrs.PlateCarree(central_longitude=central_longitude)
-    
+
     # Define the CRS of the data (assuming 0-360 longitude range)
     data_crs = ccrs.PlateCarree(central_longitude=0)
-    
+
     # Create the GeoViews Feature for land
     land_feature = NaturalEarthFeature(
-        category='physical',
-        name='land',
-        scale='50m',
-        edgecolor='black',
-        facecolor='lightgray'
+        category="physical",
+        name="land",
+        scale="50m",
+        edgecolor="black",
+        facecolor="lightgray",
     )
     land = gv.Feature(land_feature, crs=projection)
-    
+
     # Ensure data is an xarray.DataArray
     if not isinstance(data, xr.DataArray):
         raise ValueError("Input data must be an xarray.DataArray")
-    
+
     # Create a GeoViews Image for the data
-    gv_image = gv.Image(data, kdims=[lon_name, lat_name], vdims=data.name, crs=data_crs).opts(
+    gv_image = gv.Image(
+        data, kdims=[lon_name, lat_name], vdims=data.name, crs=data_crs
+    ).opts(
         cmap=cmap,
         colorbar=colorbar,
         projection=projection,
-        tools=['hover'],
+        tools=["hover"],
         frame_width=600,
-        **kwargs
+        **kwargs,
     )
-    
+
     # Combine the data plot with the land feature
     plot = (gv_image * land).opts(
         opts.Overlay(
             title=title,
             xlim=(extent[0], extent[1]),
             ylim=(extent[2], extent[3]),
-            xlabel='Longitude',
-            ylabel='Latitude',
+            xlabel="Longitude",
+            ylabel="Latitude",
         )
     )
-    
+
     return plot
