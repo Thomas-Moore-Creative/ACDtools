@@ -1,0 +1,17 @@
+name: access-intake-utils
+channels:
+  - conda-forge
+  - accessnri
+  - defaults
+dependencies:
+  - python==3.10
+  - jsonschema
+  - pooch
+  - pre-commit
+  - pytest
+  - pip
+  - coverage
+  - mypy
+  - ruff
+  - pip:
+    - codecov
