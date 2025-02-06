@@ -8,5 +8,5 @@ Forked from [ACDTools](https://github.com/Thomas-Moore-Creative/ACDtools) by @Th
 ![Build Status](https://img.shields.io/travis/access-nri/access_intake_utils.svg)
 ![Documentation Status](https://readthedocs.org/projects/access-intake-utils/badge/?version=latest)
 
-- Free software: MIT Software License
+- Free software: Apache 2.0 Software Licence
 - Documentation: https://access-intake-utils.readthedocs.io.
