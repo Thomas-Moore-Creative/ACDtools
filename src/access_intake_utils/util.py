@@ -6,20 +6,17 @@ Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore
 """
 
 # Standard library imports
-import os
-import socket
 
 import intake
 import xarray as xr
-import yaml
 
 # Third-party imports
 # import numpy as np
-from dask.distributed import Client, LocalCluster
 from tabulate import tabulate
 
 # Local application imports (if needed)
 # from .my_local_module import my_function
+
 
 def report_esm_unique(
     esm_datastore_object,

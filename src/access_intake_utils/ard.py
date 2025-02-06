@@ -295,7 +295,6 @@ def find_chunking_info(catalog_search, var_name, return_results=False):
             for line in lines:
                 if len(line) > max_chars_per_line:
                     line_parts = line.split("/")
-                    new_line = ""
                     current_line = ""
                     for part in line_parts:
                         if len(current_line) + len(part) + 1 <= max_chars_per_line:

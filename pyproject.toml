@@ -94,6 +94,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "src/access_intake_utils/_version.py",
 ]
 # E402: module level import not at top of file
 # E501: line too long - let black worry about that
