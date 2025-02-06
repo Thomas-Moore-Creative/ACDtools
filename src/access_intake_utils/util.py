@@ -1,7 +1,7 @@
 """
 util.py
 
-This module contains a collection of utility functions for Australian Climate Data (ACD) tools at NCI.
+This module contains a collection of utility functions.
 Author = {"name": "Thomas Moore", "affiliation": "CSIRO", "email": "thomas.moore@csiro.au", "orcid": "0000-0003-3930-1946"}
 """
 
@@ -20,121 +20,6 @@ from tabulate import tabulate
 
 # Local application imports (if needed)
 # from .my_local_module import my_function
-
-
-def test_function():
-    """
-    a test function.
-
-    Parameters:
-    None
-
-    Returns:
-    True
-    """
-    print("The ACDtools package is installed and working correctly....  ")
-    return True
-
-
-def detect_compute_platform():
-    """
-    Brief description of what the function does.
-
-    Parameters:
-    param1 (type): Description of the first parameter.
-    param2 (type): Description of the second parameter.
-
-    Returns:
-    return_type: Description of the return value.
-    """
-    hostname = socket.gethostname()
-    if (
-        "gadi" in hostname
-    ):  # Adjust this condition to fit your HPC's hostname or unique identifier
-        platform_name = "HPC"
-    else:
-        platform_name = "Laptop"
-    print(
-        "the platform we are working on is "
-        + platform_name
-        + " with hostname: "
-        + hostname
-    )
-    return platform_name, hostname
-
-
-def load_config(config_file="config.yaml"):
-    """
-    Load a YAML configuration file and return its contents as a Python dictionary.
-
-    Parameters
-    ----------
-    config_file : str, optional
-        The name or relative path of the YAML configuration file to load.
-        By default, it looks for 'config.yaml' one directory upstream from the script.
-
-    Returns
-    -------
-    dict
-        A dictionary containing the parsed contents of the YAML configuration file.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the specified YAML file is not found.
-    yaml.YAMLError
-        If there is an error parsing the YAML file.
-
-    Example
-    -------
-    >>> config = load_config('my_config.yaml')
-    >>> print(config)
-    {'n_workers': 4, 'memory_limit': '16GB', ...}
-    """
-
-    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_file)
-    with open(config_path) as file:
-        return yaml.safe_load(file)
-
-
-def start_dask_cluster_from_config(work_type):
-    """
-    Start a Dask cluster using settings from a YAML configuration file.
-
-    Parameters
-    ----------
-    work_type : str
-        The work type key to extract the Dask cluster settings from the configuration file.
-
-    Returns
-    -------
-    client : dask.distributed.Client
-        The Dask client connected to the cluster.
-    cluster : dask.distributed.LocalCluster
-        The Dask cluster object.
-    """
-    # Load the configuration
-    config = load_config()
-
-    # Extract the Dask cluster settings for the specified work type
-    dask_settings = config.get("dask_cluster", {}).get(work_type, {})
-
-    # Remove None values (optional parameters)
-    dask_settings = {k: v for k, v in dask_settings.items() if v != "None"}
-
-    # Start the Dask cluster with the settings by unpacking the dictionary using **
-    cluster = LocalCluster(**dask_settings)
-
-    # Connect a client to the cluster
-    client = Client(cluster)
-
-    # Show some basic information about the cluster
-    print(f"Cluster started with {len(cluster.workers)} workers.")
-    print(f"Dashboard available at: {cluster.dashboard_link}")
-
-    # Return both the client and the cluster
-    return client, cluster
-
 
 def report_esm_unique(
     esm_datastore_object,
@@ -343,56 +228,3 @@ def show_methods(your_object):
     # Print all the methods
     for method in methods_only:
         print(method)
-
-
-def remove_encoding(DS):
-    for var in DS:
-        DS[var].encoding = {}
-
-    for coord in DS.coords:
-        DS[coord].encoding = {}
-    return DS
-
-
-def align_lon(ds, lon_name_list):
-    """
-    align_lon
-    Returns: ds
-    Defaults:
-    Author: Thomas Moore (based on Dougie Squire code)
-    Date created: 28/01/2020
-
-    Assumptions:
-    Dataset = ds
-    Use: ds_aligned = align_lon(ds,lon_name_list)
-    Limitations:
-    """
-    for lon_name in lon_name_list:
-        ds_attrs = ds[lon_name].attrs
-        ds = ds.assign_coords({lon_name: (ds[lon_name] + 360) % 360}).sortby(lon_name)
-        ds[lon_name].attrs = ds_attrs
-    return ds
-
-
-def replace_zero_w_nan(data_w_zero):
-    data_w_nan = data_w_zero.where(data_w_zero != 0)
-    data_w_nan.attrs["post_processing_note"] = "zero values replaced with NaNs"
-    return data_w_nan
-
-
-def convert_longitude_360_2_180(da, lon_name="longitude"):
-    """
-    Convert longitude values from 0-360 to -180 to 180.
-
-    Parameters:
-    - da: xarray.DataArray or xarray.Dataset
-        Input data with longitude values in the range 0-360.
-    - lon_name: str
-        Name of the longitude coordinate.
-
-    Returns:
-    - xarray.DataArray or xarray.Dataset
-        Data with longitude values converted to -180 to 180.
-    """
-    da = da.assign_coords(**{lon_name: ((da[lon_name] + 180) % 360) - 180})
-    return da.sortby(lon_name)
