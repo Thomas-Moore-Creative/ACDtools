@@ -38,7 +38,7 @@ jobs:
         shell: bash -l {0}
         run: conda list
 
-      - name: Run tests with randomised order
+      - name: Run tests  
         shell: bash -l {0}
         run: coverage run -m --source=access_intake_utils pytest tests
       
