@@ -397,12 +397,12 @@ def tropical_pacific_hv(
     
     return plot
 
-def heatmap(heatmap_df, figsize=(20, 8), cmap='RdBu_r', vmin=-2, vmax=2, title='my plot title', annot_data=None, **kwargs):
+def heatmap(heatmap_df, figsize=(20, 8), cmap='coolwarm', vmin=-2, vmax=2, title='my plot title', annot_data=None):
     """
     Plot a heatmap with optional annotations.
 
     Parameters:
-    - heatmap_df (pandas.DataFrame): The input dataframe for the heatmap.
+    - heatmap_df (pandas.DataFrame): The input dataframe for the heatmap. This is a table with rows(months) and columns(years).
     - figsize (tuple, optional): The size of the figure (width, height). Default is (20, 8).
     - cmap (str, optional): The colormap to use for the heatmap. Default is 'RdBu_r'.
     - vmin (float, optional): The minimum value for the color scale. Default is -2.
@@ -417,10 +417,11 @@ def heatmap(heatmap_df, figsize=(20, 8), cmap='RdBu_r', vmin=-2, vmax=2, title='
     # Plotting the heatmap with annotations
     plt.figure(figsize=figsize)
     # First layer: heatmap without annotations
-    sns.heatmap(heatmap_df, annot=False, cmap=cmap, square=True, vmin=vmin, vmax=vmax, linewidth=.5)
+    sns.heatmap(heatmap_df, annot=False, cmap=cmap, square=True, vmin=vmin, vmax=vmax, linewidth=.5, fmt=".2f")
     if annot_data is not None:
         # Second layer: add annotations on top (with vertical alignment at center)
         sns.heatmap(heatmap_df, annot=annot_data, annot_kws={'va': 'center'}, fmt="", cbar=False, cmap=cmap, square=True,
                     vmin=vmin, vmax=vmax, linewidth=.5)
     plt.title(title)
     plt.show()
+
