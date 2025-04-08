@@ -11,7 +11,11 @@ dependencies:
   - pytest
   - pip
   - coverage
+  - intake-esm
   - mypy
+  - numpy
   - ruff
+  - tabulate
+  - xarray
   - pip:
     - codecov

@@ -20,7 +20,12 @@ classifiers = [
 ]
 license = { text = "MI Software License" }
 
-dependencies = []
+dependencies = [
+    "xarray",
+    "netcdf4",
+    "numpy",
+    "tabulate",
+]
 
 dynamic = ["version"]
 
