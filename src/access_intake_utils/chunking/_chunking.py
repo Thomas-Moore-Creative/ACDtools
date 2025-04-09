@@ -73,7 +73,7 @@ def get_disk_chunks(
         dimsizes = [ds.dimensions[dim].size for dim in var.dimensions]
 
         var_chunk_info = {
-            dim: min(chunk, dimsize)  # type: ignore[call-overload]
+            dim: min(chunk, dimsize)
             for dim, chunk, dimsize in zip(var.dimensions, chunk_list, dimsizes)
         }
         chunk_dict[varname] = var_chunk_info
