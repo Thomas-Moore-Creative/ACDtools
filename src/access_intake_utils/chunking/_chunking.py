@@ -1,4 +1,4 @@
-"""tilities to get chunking information from netCDF files."""
+"""Utilities to get chunking information from netCDF files."""
 
 import warnings
 from collections.abc import Iterable
@@ -115,8 +115,9 @@ def validate_chunkspec(
         files.
     chunkspec : dict[str, Any]
         The chunk specification dictionary, used to tell xarray how to chunk the data.
-    varname : str
-        The variable name to validate.
+    varnames : str | list[str] | None
+        The variable name(s) to validate. If none, all variables in the dataset
+        will be validated.
     validate_mode : Literal["single", "bookend", "sample", "all"]
         The mode to use for validation. This lets us specify how we want to
         validate the chunking.
@@ -217,11 +218,8 @@ def validate_chunkspec(
             ):  # If a new variable uses a larger chunk size, use that
                 min_valid_chunks[dimname] = chunksize
 
-    min_valid_chunks
-
     # Remove all `-1` values from chunkspec - these are 'the full length'
     # specifiers, so we don't need to worry about them.
-
     _chunkspec = {k: v for k, v in chunkspec.items() if v != -1}
     _full_length = {k: v for k, v in chunkspec.items() if v == -1}
 
