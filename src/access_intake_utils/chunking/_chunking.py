@@ -38,6 +38,9 @@ class ValidateMode(str, Enum):
     def __str__(self) -> str:
         return self.value
 
+    def __all__(self) -> list[str]:
+        return [mode.value for mode in ValidateMode]
+
 
 def get_disk_chunks(
     f_path: str,
@@ -137,7 +140,7 @@ def validate_chunkspec(
         files in the provided dataset are found to have inconsistent chunking.
     """
 
-    if validate_mode not in ValidateMode:
+    if validate_mode not in {mode.value for mode in ValidateMode}:
         valid_modes = ", ".join([mode.value for mode in ValidateMode])
         raise ValueError(
             f"Invalid validate_mode: {validate_mode}. Must be one of {valid_modes}"
