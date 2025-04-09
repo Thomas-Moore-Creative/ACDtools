@@ -138,7 +138,7 @@ def validate_chunkspec(
     """
 
     if validate_mode not in ValidateMode:
-        valid_modes = ", ".join([mode for mode in ValidateMode])
+        valid_modes = ", ".join([mode.value for mode in ValidateMode])
         raise ValueError(
             f"Invalid validate_mode: {validate_mode}. Must be one of {valid_modes}"
         )
