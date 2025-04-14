@@ -150,14 +150,20 @@ def validate_chunkspec(
     match dataset:
         case str():
             path_list = [Path(dataset)]
-        case Iterable() if all(isinstance(f, (str | Path)) for f in dataset):
-            path_list = [Path(str(f)) for f in dataset]
         case Path():
             path_list = [dataset]
         case esm_datastore():
             path_list = [Path(f) for f in dataset.unique().path]
         case Dataset() | DataArray():
+            if not dataset.encoding.get("source", False):
+                raise ValueError(
+                    " Dataset/DataArray does contain source attribute describing file path(s)."
+                    " Please provide a dataset with a source attribute, an esm_datastore,"
+                    " or a list of file paths."
+                )
             path_list = [Path(f) for f in dataset.encoding["source"]]
+        case Iterable() if all(isinstance(f, (str | Path)) for f in dataset):
+            path_list = [Path(str(f)) for f in dataset]
         case _:
             raise TypeError(
                 "dataset must be a string, Path, list of strings or Paths, "
@@ -205,7 +211,9 @@ def validate_chunkspec(
     for varname, chunk_dict in disk_chunks.items():
         # We need to ensure that the chunk_dict is a dict of dicts
         # with the variable name as the key.
-        if varname not in chunkspec:
+        if varname not in chunkspec and not any(
+            dimname in chunkspec for dimname in chunk_dict
+        ):
             continue
 
         for dimname, chunksize in chunk_dict.items():
@@ -230,7 +238,8 @@ def validate_chunkspec(
         mem_chunksize = _chunkspec[dim]
 
         if mem_chunksize % disk_chunksize != 0:
-            _chunk = (mem_chunksize // disk_chunksize + 1) * disk_chunksize
+            nchunk = round(mem_chunksize / disk_chunksize) or 1
+            _chunk = nchunk * disk_chunksize
             suggested_chunks[dim] = _chunk
         else:
             suggested_chunks[dim] = mem_chunksize

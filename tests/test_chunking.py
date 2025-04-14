@@ -1,6 +1,7 @@
 import warnings
 from pathlib import Path
 
+import intake
 import pytest
 
 import access_intake_utils
@@ -304,3 +305,75 @@ def test_validate_chunkspec_integer_different_warnings(
                 varnames=var,
                 validate_mode=validate_mode,
             )
+
+
+@pytest.mark.gadi_only
+@pytest.mark.parametrize(
+    "chunks, suggested_chunks",
+    [
+        (
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400},
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400},
+        ),
+        (
+            {"time": 1, "st_ocean": 6, "yt_ocean": 299, "xt_ocean": 399},
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400},
+        ),
+        (
+            {"time": 1, "st_ocean": 8, "yt_ocean": 301, "xt_ocean": 401},
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400},
+        ),
+        (
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 10},
+            {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400},
+        ),
+    ],
+)
+def test_validate_chunkspec_rounding(chunks, suggested_chunks):
+    fpath = "/g/data/ik11/outputs/access-om2-01/01deg_jra55v13_ryf9091/output1000/ocean/ocean.nc"
+
+    if chunks == suggested_chunks:
+        validated_chunk_suggestion = validate_chunkspec(
+            dataset=fpath, chunkspec=chunks, varnames="temp"
+        )
+    else:
+        with pytest.warns(
+            ChunkingWarning,
+            match="Specified chunks are not integer multiples of the disk chunks.",
+        ):
+            validated_chunk_suggestion = validate_chunkspec(
+                dataset=fpath, chunkspec=chunks, varnames="temp"
+            )
+
+    assert suggested_chunks == validated_chunk_suggestion
+
+
+@pytest.mark.gadi_only
+def test_validate_chunkspec_input_types():
+    chunks = {"time": 1, "st_ocean": 7, "yt_ocean": 300, "xt_ocean": 400}
+
+    datastore = intake.cat.access_nri["01deg_jra55v13_ryf9091"].search(
+        frequency="1mon", variable="u"
+    )
+
+    first_5 = datastore.df.head(5).path.tolist()
+    datastore = datastore.search(path=first_5)
+
+    suggested_chunks = validate_chunkspec(
+        dataset=datastore,
+        chunkspec=chunks,
+        varnames="temp",
+    )
+
+    assert chunks == suggested_chunks
+
+    ds = datastore.to_dask()
+
+    with pytest.raises(
+        ValueError, match="Dataset/DataArray does contain source attribute"
+    ):
+        suggested_chunks = validate_chunkspec(
+            dataset=ds,
+            chunkspec=chunks,
+            varnames="temp",
+        )
