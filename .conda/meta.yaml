@@ -1,0 +1,36 @@
+{% set data = load_setup_py_data(setup_file='../setup.py', from_recipe_dir=True) %}
+{% set version = data.get('version') %}
+
+package:
+  name: access-py-telemetry
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/a/access-py-telemetry/access_py_telemetry-{{ version }}.tar.gz"
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - python
+    - pip
+    - versioneer
+  run:
+    - xarray
+    - netcdf4
+    - numpy
+    - tabulate
+
+about:
+  home: https://github.com/ACCESS-NRI/access-py-telemetry
+  license: Apache Software
+  license_family: APACHE
+  summary: "Tools to add telemetry data to Python package usage"
+  # doc_url: https://access-py-telemetry-catalog.readthedocs.io/en/latest/
+
+extra:
+  recipe-maintainers:
+    - charles-turner-1
