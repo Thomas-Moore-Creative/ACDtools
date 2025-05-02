@@ -1,0 +1,38 @@
+{% set data = load_setup_py_data(setup_file='../setup.py', from_recipe_dir=True) %}
+{% set version = data.get('version') %}
+{% set pyproj = load_file_data('../pyproject.toml', from_recipe_dir=True) %}
+{% set deps = pyproj.get('project', {}).get('dependencies',[]) %}
+
+package:
+  name: access-intake-utils
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/a/access-intake-utils/access_intake_utils-{{ version }}.tar.gz"
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - python
+    - pip
+    - versioneer
+  run:
+    - python >=3.10
+    {% for dep in deps %}
+    - {{ dep }}
+    {% endfor %}
+
+about:
+  home: https://github.com/ACCESS-NRI/access-intake-utils
+  license: Apache Software
+  license_family: APACHE
+  summary: "Tools for interacting with intake catalogues (and more!)"
+  # doc_url: https://access-intake-utils-catalog.readthedocs.io/en/latest/
+
+extra:
+  recipe-maintainers:
+    - charles-turner-1
