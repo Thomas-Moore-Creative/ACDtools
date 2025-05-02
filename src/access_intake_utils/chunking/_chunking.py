@@ -75,6 +75,9 @@ def get_disk_chunks(
         chunk_list = var.chunking()
         dimsizes = [ds.dimensions[dim].size for dim in var.dimensions]
 
+        if chunk_list == "contiguous":
+            chunk_list = dimsizes
+
         var_chunk_info = {
             dim: min(chunk, dimsize)
             for dim, chunk, dimsize in zip(var.dimensions, chunk_list, dimsizes)
