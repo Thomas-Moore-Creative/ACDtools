@@ -38,6 +38,9 @@ dev = [
     "types-PyYAML", 
     "types-tabulate",
 ]
+test = [
+    "intake"
+]
 
 [project.scripts]
 # Add console scripts here

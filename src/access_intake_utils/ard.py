@@ -10,12 +10,10 @@ NOTE: This module needs to be updated to remove the dependency on config setting
 # Standard library imports
 import datetime
 import os
-from typing import Any
 
 # Third-party imports
 # import numpy as np
 import intake_esm
-import netCDF4 as nc
 import numpy as np
 import xarray as xr
 from tabulate import tabulate
@@ -326,52 +324,6 @@ def find_chunking_info(catalog_search, var_name, return_results=False):
         return chunking_info
     else:
         return None
-
-
-def get_disk_chunks(
-    f_path: str,
-    varnames: str | list[str] | None = None,
-) -> dict[str, dict[str, Any]]:
-    """
-    Read a netCDF file and get the disk chunks out.
-
-    This uses the netCDF4 library to exrtact the on disk chunking information
-    from the netCDF file. It returns a dictionary with the variable names as keys
-    and a nested dictionary with the chunking information as values.
-    The nested dictionary contains the dimension names as keys and the chunk sizes
-    as integer values, if available.
-
-    Parameters
-    ----------
-    f_path : str
-        The path to the netCDF file.
-
-    Returns
-    -------
-    dict[str, dict[str, Any]]
-    """
-
-    ds = nc.Dataset(f_path)
-    vars = ds.variables
-
-    chunk_dict = {}
-
-    for varname, var in vars.items():
-        chunk_list = var.chunking()
-
-        var_chunk_info = {dim: chunk for dim, chunk in zip(var.dimensions, chunk_list)}
-        chunk_dict[varname] = var_chunk_info
-
-    if varnames is not None:
-        if isinstance(varnames, str):
-            varnames = [varnames]
-        chunk_dict = {
-            varname: chunk_dict[varname]
-            for varname in varnames
-            if varname in chunk_dict
-        }
-
-    return chunk_dict
 
 
 def save_n_drop_multidim_lat_lon(
