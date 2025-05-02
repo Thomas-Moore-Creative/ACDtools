@@ -15,10 +15,10 @@ maintainers = [{ name = "ACCESS-NRI" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT Software License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
-license = { text = "MI Software License" }
+license = {text = "Apache Software License 2.0"}
 
 dependencies = [
     "xarray",
