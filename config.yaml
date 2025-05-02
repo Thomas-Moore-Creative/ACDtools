@@ -2,7 +2,7 @@ dask_cluster:
   netcdf_work: # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: 1  # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
-    memory_limit: None  # Default memory limit per worker
+    memory_limit: 0  # Default memory limit per worker
   bwmega_work: # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
     n_workers: 8  # Number of workers for default cluster
     threads_per_worker: 1  # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
@@ -10,7 +10,7 @@ dask_cluster:
   zarr_work:
     n_workers: None  # Number of workers for default cluster
     threads_per_worker: None  # Default threads per worker
-    memory_limit: None  # Default Memory limit per worker
+    memory_limit: 0  # Default Memory limit per worker
 catalog_search_query_dict:
   ACCESS_ESM15:
     all_ocean:

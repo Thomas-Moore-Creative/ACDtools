@@ -114,9 +114,12 @@ def start_dask_cluster_from_config(work_type):
     
     # Start the Dask cluster with the settings by unpacking the dictionary using **
     cluster = LocalCluster(**dask_settings)
-    
+
     # Connect a client to the cluster
     client = Client(cluster)
+
+    # Start AMM
+    client.amm.start()
 
     # Show some basic information about the cluster
     print(f"Cluster started with {len(cluster.workers)} workers.")
