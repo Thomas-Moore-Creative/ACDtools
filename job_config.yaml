@@ -1,6 +1,7 @@
 paths:
   write_dir: '/scratch/es60/ard/models/ACCESS-ESM15/ARD/'
   save_coords_dir: '/scratch/es60/ard/models/ACCESS-ESM15/ARD/coords/'
+  log_dir: '/scratch/es60/ard/models/ACCESS-ESM15/ARD/logs/'
 dask_cluster:
   netcdf_work: # threads per worker set to deal with https://forum.access-hive.org.au/t/netcdf-not-a-valid-id-errors/389
     n_workers: None  # Number of workers for default cluster
