@@ -15,6 +15,7 @@ catalog_search_query_dict:
   source_id: 'ACCESS-ESM1-5'
   variable_id: 'thetao'
   table_id: 'Omon'
+  version: 'latest'
 chunking_key:
   'ACCESS_ESM15_3D'
 chunking:
