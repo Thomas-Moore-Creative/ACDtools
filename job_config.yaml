@@ -14,7 +14,7 @@ dask_cluster:
 catalog_search_query_dict:
   experiment_id: 'historical'
   source_id: 'ACCESS-ESM1-5'
-  variable_id: 'chl'
+  variable_id: 'o2'
   table_id: 'Omon'
   version: 'latest'
 chunking_key:
