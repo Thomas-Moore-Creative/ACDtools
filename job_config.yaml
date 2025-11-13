@@ -12,11 +12,15 @@ dask_cluster:
     threads_per_worker: None  # Default threads per worker
     memory_limit: None  # Default Memory limit per worker
 catalog_search_query_dict:
-  experiment_id: 'historical'
+  experiment_id: 'ssp126'
   source_id: 'ACCESS-ESM1-5'
-  variable_id: 'o2'
+  variable_id: 'uo'
   table_id: 'Omon'
   version: 'latest'
+time_trim:
+  enabled: True         # or false
+  start: null
+  end: '2100-12-31'
 chunking_key:
   'ACCESS_ESM15_3D'
 chunking:
