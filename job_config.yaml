@@ -12,7 +12,7 @@ dask_cluster:
     threads_per_worker: None  # Default threads per worker
     memory_limit: None  # Default Memory limit per worker
 catalog_search_query_dict:
-  experiment_id: 'ssp126'
+  experiment_id: 'ssp585'
   source_id: 'ACCESS-ESM1-5'
   variable_id: 'uo'
   table_id: 'Omon'
